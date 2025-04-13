@@ -1,11 +1,22 @@
-FROM maven:3.9.6-eclipse-temurin-21
-LABEL authors="thinhnguyen"
+# Stage 1: Build
+ FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-WORKDIR /app
+ WORKDIR /app
 
-COPY target/user-service-0.0.1-SNAPSHOT.jar /app/user-service-0.0.1-SNAPSHOT.jar
+ COPY pom.xml .
+ RUN mvn dependency:go-offline -B
 
-EXPOSE 8080
+ COPY src ./src
+ RUN mvn package -DskipTests
 
-ENTRYPOINT ["java", "-jar", "/app/user-service-0.0.1-SNAPSHOT.jar"]
+ # Stage 2: Run
+ FROM eclipse-temurin:21-jdk-alpine
 
+ WORKDIR /app
+
+ COPY --from=build /app/target/*.jar app.jar
+
+ ENV JAVA_OPTS="-Xmx512m -Xms256m"
+
+ EXPOSE 8081
+ ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]

@@ -1,25 +1,16 @@
 package com.ecommerce.user_service.service;
 
 import com.ecommerce.user_service.dao.UserRepository;
-import com.ecommerce.user_service.entity.Address;
 import com.ecommerce.user_service.entity.User;
 import com.ecommerce.user_service.model.ChangeProfileRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-
 @Service
-public class CustomUserDetailsService {
+public class UserService {
+
     @Autowired
     private UserRepository userRepository;
-
-    public UserDetails loadUserByEmail(String email) {
-        User user = userRepository.findByEmail(email);
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
-
-    }
 
     public void applyChangeProfile(ChangeProfileRequest changeProfileRequest) {
         User user = userRepository.findByEmail(changeProfileRequest.getEmail());
@@ -33,4 +24,8 @@ public class CustomUserDetailsService {
         }
     }
 
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 }
