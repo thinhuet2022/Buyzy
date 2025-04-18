@@ -1,6 +1,8 @@
 package com.ecommerce.user_service.model;
 
 
+import com.ecommerce.user_service.enums.Role;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
 @Data
@@ -15,4 +17,7 @@ public class AccountCreationRequest {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+
+    @Enumerated
+    private Role role;
 }

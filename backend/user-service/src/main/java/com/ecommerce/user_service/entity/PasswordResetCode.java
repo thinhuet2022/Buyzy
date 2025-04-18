@@ -16,7 +16,7 @@ public class PasswordResetCode {
 
     private LocalDateTime expiryDate;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 }

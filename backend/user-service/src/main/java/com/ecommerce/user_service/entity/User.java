@@ -1,7 +1,12 @@
 package com.ecommerce.user_service.entity;
 
+import com.ecommerce.user_service.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -15,8 +20,13 @@ public class User {
     private String email;
     private String password;
     private String phoneNumber;
-    private String role;
-    @ManyToOne
-    @JoinColumn(name = "address_id")
-    private Address address;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    private String imageUrl;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 }

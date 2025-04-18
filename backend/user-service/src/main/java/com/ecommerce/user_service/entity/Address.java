@@ -13,6 +13,7 @@ public class Address {
     private Long id;
 
     private String street;
+    private String ward;
     private String city;
     private String district;
     private String country;

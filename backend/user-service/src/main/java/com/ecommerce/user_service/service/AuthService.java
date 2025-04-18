@@ -4,6 +4,8 @@ import com.ecommerce.user_service.dao.PasswordResetCodeRepository;
 import com.ecommerce.user_service.dao.UserRepository;
 import com.ecommerce.user_service.entity.PasswordResetCode;
 import com.ecommerce.user_service.entity.User;
+import com.ecommerce.user_service.enums.Role;
+import com.ecommerce.user_service.model.AccountCreationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,12 +34,19 @@ public class AuthService {
         return userRepository.existsByEmail(email);
     }
 
-    public void createUser(User user) {
+    public String createUser(AccountCreationRequest accountCreationRequest) {
+        User user = new User();
+        user.setFirstName(accountCreationRequest.getFirstName());
+        user.setLastName(accountCreationRequest.getLastName());
+        user.setEmail(accountCreationRequest.getEmail());
+        user.setPhoneNumber(accountCreationRequest.getPhoneNumber());
         // Hash the password before saving
-        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        String hashedPassword = passwordEncoder.encode(accountCreationRequest.getPassword());
         user.setPassword(hashedPassword);
-        user.setRole("USER");
+        user.setRole(accountCreationRequest.getRole());
         userRepository.save(user);
+
+        return accountCreationRequest.getEmail();
     }
 
     public User getUserByEmail(String email) {
@@ -50,7 +59,7 @@ public class AuthService {
         passwordResetCode.setUser(user);
         String code = generateRandomCode();
         passwordResetCode.setCode(code);
-        passwordResetCode.setExpiryDate(LocalDateTime.now().plusMinutes(10)); // Set expiry time to 15 minutes
+        passwordResetCode.setExpiryDate(LocalDateTime.now().plusMinutes(2)); // Set expiry time to 15 minutes
         passwordResetCodeRepository.save(passwordResetCode);
         emailService.sendEmail(user.getEmail(), "Password Reset Code", "Your password reset code is: " + code);
     }
@@ -66,12 +75,7 @@ public class AuthService {
         if (passwordResetCode != null) {
             LocalDateTime now = LocalDateTime.now();
             if (passwordResetCode.getExpiryDate().isAfter(now)) {
-                String newPassword = UUID.randomUUID().toString().substring(0, 8); // Generate a new random password
-                User user = passwordResetCode.getUser();
-                user.setPassword(passwordEncoder.encode(newPassword)); // Hash the new password
-                userRepository.save(user); // Save the new password
                 passwordResetCodeRepository.delete(passwordResetCode); // Delete the used code
-                emailService.sendEmail(email, "New Password Provided", "Your new password is" + newPassword);
                 return true; // Code is valid
             } else {
 
@@ -79,5 +83,16 @@ public class AuthService {
             }
         }
         return false; // Code is invalid or not found
+    }
+
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            String hashedPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(hashedPassword);
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("User not found");
+        }
     }
 }
