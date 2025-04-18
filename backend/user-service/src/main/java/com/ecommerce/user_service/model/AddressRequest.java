@@ -11,8 +11,8 @@ public class AddressRequest {
     private String street;
     private String city;
     private String district;
+    private String ward;
     private String country;
-    private String zipCode;
     private boolean isDefault;
 
     public boolean isDefaultAddress() {

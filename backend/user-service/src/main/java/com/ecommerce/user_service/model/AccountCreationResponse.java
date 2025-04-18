@@ -8,5 +8,6 @@ import lombok.Data;
 public class AccountCreationResponse {
     private String message;
     private String creation_status;
+    private String email;
 
 }

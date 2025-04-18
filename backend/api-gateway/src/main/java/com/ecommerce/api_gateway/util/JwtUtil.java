@@ -1,43 +1,23 @@
 package com.ecommerce.api_gateway.util;
-
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class JwtUtil {
 
-
-    public static final String SECRET = "JxADc+fxold2eO2L9uEUQk2Onjt4xGO6kIZMF+320A4=";
+    public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
 
     public void validateToken(final String token) {
-        Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(getSignKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        Date expiration = claims.getExpiration();
-        if (expiration.before(new Date())) {
-            throw new RuntimeException("Token expired");
-        }
+        Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
     }
 
-
-
     private Key getSignKey() {
-        byte[] keyBytes = JwtUtil.SECRET.getBytes(StandardCharsets.UTF_8); // 👈 giống auth-service
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

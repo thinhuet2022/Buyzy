@@ -1,147 +1,156 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import Button from '../components/Button';
+import React, {useState} from 'react';
+import {useParams, useNavigate} from 'react-router-dom';
+import ProductGallery from '../components/product/ProductGallery';
+import ProductInfo from '../components/product/ProductInfo';
+import ProductReviews from '../components/product/ProductReviews';
 
 const Product = () => {
-  const { id } = useParams();
-  const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(0);
+    const navigate = useNavigate();
+    const {id} = useParams();
+    const [product] = useState({
+        id: id,
+        name: 'Premium Wireless Headphones',
+        brand: 'AudioTech',
+        price: 299.99,
+        originalPrice: 399.99,
+        discount: 25,
+        description: 'Experience crystal-clear sound with our premium wireless headphones. Featuring noise cancellation, 30-hour battery life, and comfortable over-ear design.',
+        features: [
+            'Active Noise Cancellation',
+            '30-hour battery life',
+            'Bluetooth 5.0',
+            'Built-in microphone',
+            'Foldable design',
+        ],
+        variants: {
+            color: ['#000000', '#FFFFFF', '#B22222', '#4169E1'],
+            size: ['S', 'M', 'L', 'XL'],
+            material: ['Leather', 'Synthetic', 'Mesh'],
+            style: ['Over-Ear', 'On-Ear', 'In-Ear'],
+            connectivity: ['Bluetooth', 'Wired', 'Both']
+        },
+        shop: {
+            name: 'AudioTech Official Store',
+            avatar: 'https://images.unsplash.com/photo-1567443024551-f3e3dee5f6b3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c3RvcmV8ZW58MHx8MHx8fDA%3D',
+            rating: 4.8,
+            reviews: 1250
+        },
+        images: [
+            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
+            'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
+            'https://images.unsplash.com/photo-1612444530582-fc66183b16f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
+        ],
+    });
 
-  // Mock product data - replace with actual API call
-  const product = {
-    id: 1,
-    name: 'Wireless Headphones',
-    description: 'Premium noise-cancelling wireless headphones with crystal clear sound. Features include active noise cancellation, 30-hour battery life, and comfortable over-ear design.',
-    price: 199.99,
-    images: [
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-      'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-    ],
-    features: [
-      'Active Noise Cancellation',
-      '30-hour Battery Life',
-      'Bluetooth 5.0',
-      'Built-in Microphone',
-      'Foldable Design',
-    ],
-    category: 'Electronics',
-    stock: 10,
-  };
+    const [reviews] = useState([
+        {
+            id: 1,
+            user: {
+                name: 'Sarah Johnson',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww',
+            },
+            rating: 5,
+            date: '2 days ago',
+            comment: 'Amazing sound quality and very comfortable to wear for long periods. The noise cancellation is impressive!',
+        },
+        {
+            id: 2,
+            user: {
+                name: 'Michael Chen',
+                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww',
+            },
+            rating: 4,
+            date: '1 week ago',
+            comment: 'Great headphones overall. Battery life is excellent, but the ear cushions could be more comfortable.',
+        },
+    ]);
 
-  const handleQuantityChange = (value) => {
-    const newQuantity = Math.max(1, Math.min(product.stock, quantity + value));
-    setQuantity(newQuantity);
-  };
+    const handleAddToCart = (quantity) => {
+        console.log('Adding to cart:', {product, quantity});
+        // Here you would typically dispatch an action to add the item to the cart
+        setTimeout(() => {
+            navigate('/cart');
+        }, 0);
+    };
 
-  const handleAddToCart = () => {
-    // Implement add to cart functionality
-    console.log('Added to cart:', { product, quantity });
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="relative aspect-square rounded-lg overflow-hidden bg-white"
-            >
-              <img
-                src={product.images[selectedImage]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-square rounded-lg overflow-hidden ${
-                    selectedImage === index ? 'ring-2 ring-primary-500' : ''
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`${product.name} view ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Details */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-              <p className="text-2xl font-semibold text-primary-600 mb-4">${product.price}</p>
-              <p className="text-gray-600">{product.description}</p>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Features</h2>
-              <ul className="space-y-2">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="flex items-center">
-                    <svg
-                      className="w-5 h-5 text-green-500 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center border rounded-lg">
-                  <button
-                    onClick={() => handleQuantityChange(-1)}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-2">{quantity}</span>
-                  <button
-                    onClick={() => handleQuantityChange(1)}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100"
-                  >
-                    +
-                  </button>
+    return (
+        <div className="min-h-screen bg-gray-50">
+            {/* Main product section */}
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row md:gap-12">
+                        <div className="md:w-1/2">
+                            <ProductGallery images={product.images}/>
+                        </div>
+                        <div className="md:w-1/2">
+                            <ProductInfo product={product} onAddToCart={handleAddToCart}/>
+                        </div>
+                    </div>
                 </div>
-                <span className="text-sm text-gray-500">
-                  {product.stock} in stock
-                </span>
-              </div>
-              <Button
-                variant="primary"
-                onClick={handleAddToCart}
-                className="w-full"
-              >
-                Add to Cart
-              </Button>
             </div>
-          </div>
+
+            {/* Full width sections */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-lg  border-gray-200">
+                {/* Shop section */}
+                <div className="bg-white py-4 rounded-xl">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center space-x-4">
+                            <img
+                                src={product.shop.avatar}
+                                alt={product.shop.name}
+                                className="w-16 h-16 rounded-full object-cover"
+                            />
+                            <div>
+                                <h2 className="text-xl font-semibold text-gray-900">{product.shop.name}</h2>
+                                <div className="flex items-center space-x-2 mt-1">
+                                    <span className="text-lg font-medium text-gray-900">{product.shop.rating}</span>
+                                    <span className="text-yellow-400 text-lg">★</span>
+                                    <span
+                                        className="text-gray-600">({product.shop.reviews.toLocaleString()} reviews)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Product details section */}
+                <div className="bg-gray-50 py-12">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                            {/* Description */}
+                            <div className="bg-white p-8 rounded-xl shadow-sm">
+                                <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-left">Description</h2>
+                                <p className="text-gray-700 leading-relaxed text-left">{product.description}</p>
+                            </div>
+
+                            {/* Features */}
+                            <div className="bg-white p-8 rounded-xl shadow-sm">
+                                <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-left">Key Features</h2>
+                                <ul className="grid grid-cols-1 gap-4">
+                                    {product.features.map((feature, index) => (
+                                        <li key={index} className="flex items-start space-x-3">
+                                            <span className="text-blue-500 text-xl">•</span>
+                                            <span className="text-gray-700">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Reviews section */}
+                <div className="bg-white py-12 rounded-xl mb-4">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <ProductReviews
+                            reviews={reviews}
+                            averageRating={4.5}
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Product; 

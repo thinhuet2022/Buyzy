@@ -3,6 +3,7 @@ package com.ecommerce.api_gateway.filter;
 import com.ecommerce.api_gateway.filter.RouteValidator;
 
 import com.ecommerce.api_gateway.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -29,27 +30,33 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
             if (validator.isSecured.test(exchange.getRequest())) {
-                //header contains token or not
+                // Kiểm tra header Authorization
                 if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                    throw new RuntimeException("missing authorization header");
+                    throw new RuntimeException("Missing Authorization header");
                 }
 
-                String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-                if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                    authHeader = authHeader.substring(7);
+                String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                    throw new RuntimeException("Invalid Authorization header format");
                 }
+
+                String token = authHeader.substring(7);
+                System.out.println("token: " + token);
                 try {
-
-                    jwtUtil.validateToken(authHeader);
-
+                    //REST call to AUTH service
+//                    template.getForObject("http://IDENTITY-SERVICE//validate?token" + authHeader, String.class);
+                    jwtUtil.validateToken(token);
+                    // Optional: attach claims vào request attributes nếu cần
+                    System.out.println("hihihihihihihihihihih");
                 } catch (Exception e) {
-                    System.out.println("Invalid access...!");
+                    System.out.println("Invalid access: " + e.getMessage());
                     throw new RuntimeException("Unauthorized access to application");
                 }
             }
             return chain.filter(exchange);
         });
     }
+
 
     public static class Config {
 
