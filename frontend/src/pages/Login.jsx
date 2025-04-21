@@ -3,10 +3,8 @@ import {motion} from 'framer-motion';
 import {Link, useNavigate} from 'react-router-dom';
 import FormInput from '../components/auth/FormInput';
 import Button from '../components/common/Button';
-import authService from '../services/authService';
 import {useDispatch} from 'react-redux';
-import {setUser} from '../stores/userSlice';
-import userService from '../services/userService';
+import {login} from '../stores/authSlice';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -53,23 +51,14 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            // First, login to get the token
-            const loginResponse = await authService.login(formData.email, formData.password);
-            
-            // Then fetch the complete user profile
-            // const userProfile = await userService.getProfile();
-            
-            // // Combine the login response with the user profile
-            // const userData = {
-            //     ...loginResponse,
-            //     ...userProfile
-            // };
-            
-            // // Update the Redux store with complete user data
-            console.log("Đang lưu token:", loginResponse);
-            
-            dispatch(setUser(loginResponse));
-            navigate('/');
+            const resultAction = await dispatch(login(formData));
+            if (login.fulfilled.match(resultAction)) {
+                navigate('/');
+            } else if (login.rejected.match(resultAction)) {
+                setErrors({
+                    submit: resultAction.payload || 'Login failed. Please try again.',
+                });
+            }
         } catch (error) {
             setErrors({
                 submit: error.message || 'Login failed. Please try again.',
@@ -111,7 +100,7 @@ const Login = () => {
                         </Link>
                     </p>
                 </div>
-                
+
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="rounded-md shadow-sm space-y-4">
                         <FormInput

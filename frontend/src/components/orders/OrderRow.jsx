@@ -1,8 +1,8 @@
 import React from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { formatDate, formatCurrency } from '../../utils/formatters';
+import {FaChevronDown, FaChevronUp} from 'react-icons/fa';
+import {formatDate, formatCurrency} from '../../utils/formatters';
 
-const OrderRow = ({ order, isSelected, onToggleDetails, getStatusColor, getItemCount }) => {
+const OrderRow = ({order, isSelected, onToggleDetails, getStatusColor, getItemCount}) => {
     return (
         <tr className="hover:bg-gray-50">
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -12,7 +12,8 @@ const OrderRow = ({ order, isSelected, onToggleDetails, getStatusColor, getItemC
                 {formatDate(order.date)}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                     {order.status}
                 </span>
             </td>
@@ -29,9 +30,9 @@ const OrderRow = ({ order, isSelected, onToggleDetails, getStatusColor, getItemC
                 >
                     View Details
                     {isSelected ? (
-                        <FaChevronUp className="ml-1.5 h-4 w-4" />
+                        <FaChevronUp className="ml-1.5 h-4 w-4"/>
                     ) : (
-                        <FaChevronDown className="ml-1.5 h-4 w-4" />
+                        <FaChevronDown className="ml-1.5 h-4 w-4"/>
                     )}
                 </button>
             </td>

@@ -1,11 +1,12 @@
 package com.ecommerce.product_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Data
-// @Table(name = "product_images")
+@Table(name = "product_images")
 public class ProductImages {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
@@ -14,5 +15,6 @@ public class ProductImages {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @JsonIgnore
     private Product product;
 }

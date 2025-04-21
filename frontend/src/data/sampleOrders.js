@@ -1,4 +1,4 @@
-export const sampleOrders = Array.from({ length: 25 }, (_, index) => ({
+export const sampleOrders = Array.from({length: 25}, (_, index) => ({
     id: `ORD-${(index + 1).toString().padStart(5, '0')}`,
     date: new Date(2024, 0, index + 1).toISOString(),
     status: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'][Math.floor(Math.random() * 5)],
@@ -11,7 +11,7 @@ export const sampleOrders = Array.from({ length: 25 }, (_, index) => ({
             image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
         },
         {
-            name: 'Smart Watch', 
+            name: 'Smart Watch',
             quantity: Math.floor(Math.random() * 2) + 1,
             price: 299.99,
             image: 'https://images.unsplash.com/photo-1545579133-99bb5ab189bd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'

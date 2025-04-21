@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useSearchParams} from 'react-router-dom';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import { clearCart } from '../redux/cartSlice';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import {useDispatch} from 'react-redux';
+import {clearCart} from '../redux/cartSlice';
+import {FaCheckCircle, FaTimesCircle} from 'react-icons/fa';
 
 const PaymentCallback = () => {
     const [searchParams] = useSearchParams();
@@ -61,7 +61,8 @@ const PaymentCallback = () => {
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
                 {status === 'processing' && (
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                        <div
+                            className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
                         <h2 className="mt-4 text-xl font-semibold text-gray-900">
                             Verifying Payment...
                         </h2>
@@ -73,7 +74,7 @@ const PaymentCallback = () => {
 
                 {status === 'success' && (
                     <div className="text-center">
-                        <FaCheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+                        <FaCheckCircle className="h-12 w-12 text-green-500 mx-auto"/>
                         <h2 className="mt-4 text-xl font-semibold text-gray-900">
                             Payment Successful!
                         </h2>
@@ -85,7 +86,7 @@ const PaymentCallback = () => {
 
                 {status === 'failed' && (
                     <div className="text-center">
-                        <FaTimesCircle className="h-12 w-12 text-red-500 mx-auto" />
+                        <FaTimesCircle className="h-12 w-12 text-red-500 mx-auto"/>
                         <h2 className="mt-4 text-xl font-semibold text-gray-900">
                             Payment Failed
                         </h2>

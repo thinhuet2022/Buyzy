@@ -1,6 +1,7 @@
 package com.ecommerce.product_service.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -17,6 +18,9 @@ public class Category {
 
     private String name;
 
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products;
+
     public Category(String name){
         this.name = name;
     }
@@ -24,4 +28,5 @@ public class Category {
     public Category() {
 
     }
+
 }

@@ -3,16 +3,18 @@ import {Link, useNavigate} from 'react-router-dom';
 import {useDispatch} from 'react-redux';
 import {clearUser} from '../../stores/userSlice';
 import authService from '../../services/authService';
-
-const UserProfileDropdown = ({user}) => {
+import { logoutUser } from '../../stores/authSlice';
+const UserProfileDropdown = ({user, imageProfile}) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const handleLogout = () => {
+        logoutUser();
         authService.logout();
         dispatch(clearUser());
         navigate('/login');
+        window.location.reload();
     };
 
     useEffect(() => {
@@ -32,7 +34,7 @@ const UserProfileDropdown = ({user}) => {
         <div className="relative" ref={dropdownRef}>
 
             <img
-                src={user?.imageUrl || 'https://ui-avatars.com/api/?name=User&background=random'}
+                src={imageProfile || 'https://ui-avatars.com/api/?name=ThinhNguyen&background=random'}
                 alt="User avatar"
                 className="w-12 h-12 object-cover rounded-full"
                 onClick={() => setIsOpen(!isOpen)}

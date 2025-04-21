@@ -1,14 +1,17 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Button from '../components/common/Button';
 import StepIndicator from '../components/checkout/StepIndicator';
 import ShippingForm from '../components/checkout/ShippingForm';
 import PaymentForm from '../components/checkout/PaymentForm';
 import OrderSummary from '../components/checkout/OrderSummary';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-
+import {useDispatch} from 'react-redux';
+import {useNavigate, useLocation} from 'react-router-dom';
+import { toast } from 'react-toastify';
+import cartService from '../services/cartService';
 const Checkout = () => {
+    const location = useLocation();
+    const { selectedItems } = location.state || { selectedItems: [] };
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         shipping: {
@@ -31,6 +34,20 @@ const Checkout = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const fetchCheckoutItems = async () => {
+        const response = await cartService.getCheckoutItems(selectedItems);
+        console.log(response);
+    }
+
+    useEffect(() => {
+        // If no selected items, redirect back to cart
+        if (!selectedItems || selectedItems.length === 0) {
+            toast.error('No items selected for checkout');
+            navigate('/cart');
+        }
+        fetchCheckoutItems();
+    }, [selectedItems, navigate]);
+
     const handleInputChange = (section, field, value) => {
         setFormData((prev) => ({
             ...prev,
@@ -41,12 +58,10 @@ const Checkout = () => {
         }));
     };
 
-    function clearCart() {
-        return undefined;
-    }
-
     const handleSubmit = async () => {
         setIsLoading(true);
+        setError('');
+
         try {
             // Create order first
             const orderData = {
@@ -58,7 +73,7 @@ const Checkout = () => {
 
             // Create order
             const orderResponse = await axios.post('http://localhost:8080/api/v1/orders', orderData);
-            
+
             if (orderResponse.status === 201) {
                 if (formData.payment.method === 'vnpay') {
                     // Call API to create VNPay payment URL
@@ -68,17 +83,17 @@ const Checkout = () => {
                         orderId: orderResponse.data.id,
                         returnUrl: `${window.location.origin}/payment/callback`
                     });
-                    
+
                     // Store order ID in sessionStorage for verification after payment
                     sessionStorage.setItem('pendingOrderId', orderResponse.data.id);
-                    
+
                     // Redirect to VNPay payment page
                     window.location.href = paymentResponse.data.payUrl;
                 } else {
                     // For COD, clear cart and navigate to success page
                     dispatch(clearCart());
-                    navigate('/order-success', { 
-                        state: { 
+                    navigate('/order-success', {
+                        state: {
                             orderId: orderResponse.data.id,
                             paymentMethod: 'cod'
                         }
@@ -86,37 +101,31 @@ const Checkout = () => {
                 }
             }
         } catch (error) {
-            console.error('Error processing order:', error);
-            setError('Failed to process your order. Please try again.');
+            setError(error.message || 'Failed to place order');
+            toast.error('Failed to place order');
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Mock cart items for order summary
-    const cartItems = [
-        {
-            id: 1,
-            name: 'Wireless Headphones',
-            price: 199.99,
-            quantity: 1,
-            image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-        },
-        {
-            id: 2,
-            name: 'Smart Watch',
-            price: 249.99,
-            quantity: 2,
-            image: 'https://images.unsplash.com/photo-1545579133-99bb5ab189bd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c21hcnQlMjB3YXRjaHxlbnwwfHwwfHx8MA%3D%3D',
-        },
-    ];
-
+    // Calculate totals based on selected items
     const calculateSubtotal = () => {
-        return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+        return selectedItems.reduce(
+            (total, item) => total + (item.price * item.quantity),
+            0
+        );
+    };
+
+    const calculateShipping = () => {
+        return selectedItems.length > 0 ? 10000 : 0;
+    };
+
+    const calculateTax = () => {
+        return calculateSubtotal() * 0.03;
     };
 
     const calculateTotal = () => {
-        return calculateSubtotal();
+        return calculateSubtotal() + calculateShipping() + calculateTax();
     };
 
     const renderCurrentStep = () => {
@@ -137,53 +146,35 @@ const Checkout = () => {
                         handleInputChange={(field, value) =>
                             handleInputChange('payment', field, value)
                         }
-                        
+
                         paymentMethod={formData.payment.method}
-                        onPaymentMethodChange={(method) => 
+                        onPaymentMethodChange={(method) =>
                             handleInputChange('payment', 'method', method)
                         }
                     />
                 );
             case 3:
                 return (
-                    <div className="space-y-6 text-left">
-                        <h2 className="text-xl font-semibold text-gray-900">Review Order</h2>
-                        <div className="space-y-4">
-                            <div>
-                                <h3 className="font-medium text-gray-900">Shipping Information</h3>
-                                <p className="text-gray-600">
-                                    {formData.shipping.firstName} {formData.shipping.lastName}
-                                    <br/>
-                                    {formData.shipping.address}
-                                    {formData.shipping.additionalInfo && (
-                                        <>
-                                            <br/>
-                                            {formData.shipping.additionalInfo}
-                                        </>
-                                    )}
-                                    <br/>
-                                    {formData.shipping.ward}, {formData.shipping.district}
-                                    <br/>
-                                    {formData.shipping.province}
-                                    <br/>
-                                    Phone: {formData.shipping.phone}
-                                    <br/>
-                                    Email: {formData.shipping.email}
-                                </p>
-                            </div>
-                            <div className='flex justify-start space-x-1'>
-                                <h3 className="font-medium text-gray-900">Payment Method:</h3>
-                                <p className="text-gray-600">
-                                    {formData.payment.method === 'cod' ? 'Cash on Delivery' : 'VNPay'}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <OrderSummary
+                        items={selectedItems}
+                        subtotal={calculateSubtotal()}
+                        shipping={calculateShipping()}
+                        tax={calculateTax()}
+                        total={calculateTotal()}
+                    />
                 );
             default:
                 return null;
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">
@@ -195,7 +186,7 @@ const Checkout = () => {
                             totalSteps={3}
                             stepLabels={['Shipping', 'Payment', 'Review']}
                         />
-                        <form 
+                        <form
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 if (step < 3) {
@@ -203,7 +194,7 @@ const Checkout = () => {
                                 } else {
                                     handleSubmit();
                                 }
-                            }} 
+                            }}
                             className="space-y-2"
                         >
                             <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -227,8 +218,11 @@ const Checkout = () => {
                     </div>
                     <div className="md:col-span-1">
                         <OrderSummary
-                            cartItems={cartItems}
-                           subtotal={calculateSubtotal()}
+                            items={selectedItems}
+                            subtotal={calculateSubtotal()}
+                            shipping={calculateShipping()}
+                            tax={calculateTax()}
+                            total={calculateTotal()}
                         />
                     </div>
                 </div>

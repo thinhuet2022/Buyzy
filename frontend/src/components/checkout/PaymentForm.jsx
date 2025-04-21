@@ -1,7 +1,7 @@
 import React from 'react';
-import { FaTruck, FaMoneyBill, FaCreditCard } from 'react-icons/fa';
+import {FaTruck, FaMoneyBill, FaCreditCard} from 'react-icons/fa';
 
-const PaymentForm = ({ formData, handleInputChange, onVNPayClick, paymentMethod }) => {
+const PaymentForm = ({formData, handleInputChange, onVNPayClick, paymentMethod}) => {
     const paymentMethods = [
         {
             id: 'cod',
@@ -28,10 +28,10 @@ const PaymentForm = ({ formData, handleInputChange, onVNPayClick, paymentMethod 
                         key={method.id}
                         className={`
                             relative flex items-start p-4 rounded-lg border cursor-pointer
-                            ${paymentMethod === method.id 
-                                ? 'border-blue-500 bg-blue-50' 
-                                : 'border-gray-200 hover:border-gray-300'
-                            }
+                            ${paymentMethod === method.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }
                         `}
                         onClick={() => handleInputChange('method', method.id)}
                     >
@@ -45,7 +45,7 @@ const PaymentForm = ({ formData, handleInputChange, onVNPayClick, paymentMethod 
                         />
                         <div className="ml-4 flex items-center space-x-4">
                             <div className={`p-2 rounded-full bg-gray-50 ${method.iconColor}`}>
-                                <method.icon className="h-6 w-6" />
+                                <method.icon className="h-6 w-6"/>
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-900">{method.name}</p>
@@ -67,7 +67,7 @@ const PaymentForm = ({ formData, handleInputChange, onVNPayClick, paymentMethod 
                                 Please have your payment information ready
                             </p>
                         </div>
-                        
+
                     </div>
                 </div>
             )}
@@ -75,7 +75,7 @@ const PaymentForm = ({ formData, handleInputChange, onVNPayClick, paymentMethod 
             {paymentMethod === 'cod' && (
                 <div className="mt-6 bg-green-50 p-4 rounded-lg">
                     <div className="flex items-center space-x-3">
-                        <FaMoneyBill className="h-6 w-6 text-green-600" />
+                        <FaMoneyBill className="h-6 w-6 text-green-600"/>
                         <div>
                             <p className="text-sm font-medium text-gray-900">
                                 Pay when you receive

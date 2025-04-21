@@ -4,7 +4,7 @@ import ProductCard from './ProductCard.jsx';
 
 const ProductGrid = ({title, subtitle, products, showViewAll = true}) => {
     return (
-        <section className="w-full py-12 bg-white">
+        <section className="w-full py-12 bg-gray-100">
             <div className="w-full max-w-7xl mx-auto px-4">
                 <div className="flex justify-between items-center mb-8">
                     <div>
@@ -21,7 +21,7 @@ const ProductGrid = ({title, subtitle, products, showViewAll = true}) => {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     {products.map((product) => (
-                        <ProductCard key={product.id} product={product}/>
+                        <ProductCard key={product.productId} product={product}/>
                     ))}
                 </div>
             </div>

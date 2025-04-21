@@ -4,7 +4,7 @@ import ProfileSettings from '../components/profile/ProfileSettings';
 import UserProfileHeader from '../components/profile/UserProfileHeader';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import AddressSettings from '../components/profile/AddressSettings';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState('orders');
@@ -66,7 +66,7 @@ const Profile = () => {
     const handleImageChange = async (file) => {
         const response = await userService.updateProfileImage(file);
         if (response) {
-    
+
             console.log(response);
         }
     };

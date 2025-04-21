@@ -1,7 +1,7 @@
 import React from 'react';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router-dom';
-
+import {formatCurrency} from '../../utils/formatters';
 const CartSummary = ({subtotal, shipping, tax, total, onCheckout}) => {
     return (
         <motion.div
@@ -14,25 +14,25 @@ const CartSummary = ({subtotal, shipping, tax, total, onCheckout}) => {
             <div className="space-y-3">
                 <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="text-gray-900">${subtotal?.toFixed(2)}</span>
+                    <span className="text-gray-900">{formatCurrency(subtotal)}</span>
                 </div>
 
                 <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="text-gray-900">${shipping?.toFixed(2)}</span>
+                    <span className="text-gray-900">{formatCurrency(shipping)}</span>
                 </div>
 
                 <div className="flex justify-between">
                     <span className="text-gray-600">Tax</span>
-                    <span className="text-gray-900">${tax?.toFixed(2)}</span>
+                    <span className="text-gray-900">{formatCurrency(tax)}</span>
                 </div>
 
                 <div className="border-t pt-4 mt-4">
                     <div className="flex justify-between">
                         <span className="text-lg font-semibold text-gray-900">Total</span>
                         <span className="text-lg font-semibold text-gray-900">
-              ${total?.toFixed(2)}
-            </span>
+                            {formatCurrency(total)}
+                        </span>
                     </div>
                 </div>
             </div>

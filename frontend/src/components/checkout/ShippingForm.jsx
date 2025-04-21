@@ -63,7 +63,7 @@ const ShippingForm = ({formData, handleInputChange}) => {
             </div>
 
             <div className="space-y-6 text-left">
-                <LocationSelector onChange={handleLocationChange} />
+                <LocationSelector onChange={handleLocationChange}/>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
