@@ -1,11 +1,11 @@
 import authService from '../services/authService';
 
 export const isAuthenticated = () => {
-  return authService.getCurrentUser() !== null;
+    return authService.getCurrentUser() !== null;
 };
 
 export const requireAuth = () => {
-  if (!isAuthenticated()) {
-    throw new Error('Authentication required');
-  }
+    if (!isAuthenticated()) {
+        throw new Error('Authentication required');
+    }
 }; 

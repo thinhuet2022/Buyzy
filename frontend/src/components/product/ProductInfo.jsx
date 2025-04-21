@@ -3,32 +3,19 @@ import {motion} from 'framer-motion';
 import Button from '../common/Button';
 import classNames from 'classnames';
 
-const VariantOption = React.memo(({
-                                      option,
-                                      isSelected,
-                                      isColor,
-                                      onClick
-                                  }) => (
+const VariantOption = ({option, isSelected, onClick, isColor}) => (
     <button
         onClick={onClick}
-        className={classNames(
-            'transition-all duration-200',
-            isColor ? [
-                'w-10 h-10 rounded-full border-2',
-                isSelected ? 'border-blue-500 ring-2 ring-blue-200' : 'border-transparent hover:ring-2 hover:ring-gray-200'
-            ] : [
-                'px-4 py-2 rounded-lg border text-sm font-medium',
-                isSelected
-                    ? 'border-blue-500 bg-blue-50 text-blue-600'
-                    : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-            ]
-        )}
-        style={isColor ? {backgroundColor: option} : undefined}
-        title={option}
+        className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+            isSelected
+                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                : 'border-gray-200 hover:border-primary-300'
+        } ${isColor ? 'w-18 h-12 rounded-full' : ''}`}
+        style={isColor ? {backgroundColor: option} : {}}
     >
-        {!isColor && option}
+        {option}
     </button>
-));
+);
 
 const VariantSection = React.memo(({
                                        title,
@@ -55,15 +42,30 @@ const VariantSection = React.memo(({
     </div>
 ));
 
-const ProductInfo = ({product}) => {
+const ProductInfo = ({product, onAddToCart}) => {
     // State management
     const [quantity, setQuantity] = useState(1);
-    const [selectedVariants, setSelectedVariants] = useState(() =>
-        Object.entries(product.variants).reduce((acc, [key, options]) => ({
-            ...acc,
-            [key]: options[0]
-        }), {})
-    );
+    const [selectedVariants, setSelectedVariants] = useState({});
+
+    // Extract available variant options from product variants
+    const variantOptions = useMemo(() => {
+        const options = {};
+        if (product.variant) {
+            product.variant.forEach(variant => {
+                variant.variantOptions.forEach(option => {
+                    if (!options[option.optionName]) {
+                        options[option.optionName] = new Set();
+                    }
+                    options[option.optionName].add(option.optionValue);
+                });
+            });
+        }
+        // Convert Sets to Arrays
+        return Object.entries(options).reduce((acc, [key, value]) => {
+            acc[key] = Array.from(value);
+            return acc;
+        }, {});
+    }, [product.variant]);
 
     // Memoized handlers
     const handleQuantityChange = useCallback((change) => {
@@ -78,12 +80,29 @@ const ProductInfo = ({product}) => {
     }, []);
 
     const handleAddToCart = useCallback(() => {
-        console.log('Added to cart:', {
-            ...product,
-            quantity,
-            selectedVariants
+        // Debug logging
+        console.log('Selected variants:', selectedVariants);
+        console.log('Product variants:', product.variant);
+        
+        // Find the matching variant based on selected options
+        const selectedVariant = product.variant.find(variant => {
+            console.log('Checking variant:', variant);
+            const matches = variant.variantOptions.every(option => {
+                const matches = selectedVariants[option.optionName] === option.optionValue;
+                console.log(`Checking option ${option.optionName}: ${option.optionValue} against selected: ${selectedVariants[option.optionName]}, matches: ${matches}`);
+                return matches;
+            });
+            console.log('Variant matches:', matches);
+            return matches;
         });
-    }, [product, quantity, selectedVariants]);
+
+        if (selectedVariant) {
+            onAddToCart(quantity, selectedVariant);
+        } else {
+            // Handle case where no variant is selected
+            alert('Please select all variant options');
+        }
+    }, [product.variant, selectedVariants, quantity, onAddToCart]);
 
     const handleBuyNow = useCallback(() => {
         console.log('Buy now:', {
@@ -97,18 +116,9 @@ const ProductInfo = ({product}) => {
     const PriceSection = useMemo(() => (
         <div className="flex items-baseline space-x-3">
             <span className="text-3xl font-bold text-gray-900">${product.price}</span>
-            {product.originalPrice && (
-                <>
-          <span className="text-lg text-gray-500 line-through">
-            ${product.originalPrice}
-          </span>
-                    <span className="text-sm font-medium text-green-600">
-            Save {product.discount}%
-          </span>
-                </>
-            )}
+            
         </div>
-    ), [product.price, product.originalPrice, product.discount]);
+    ), [product.price]);
 
     return (
         <div className="lg:col-span-2">
@@ -125,7 +135,7 @@ const ProductInfo = ({product}) => {
 
                 {/* Variants Section */}
                 <div className="space-y-6 bg-white p-6 rounded-xl border border-gray-100">
-                    {Object.entries(product.variants).map(([variantType, options]) => (
+                    {Object.entries(variantOptions).map(([variantType, options]) => (
                         <VariantSection
                             key={variantType}
                             title={variantType}

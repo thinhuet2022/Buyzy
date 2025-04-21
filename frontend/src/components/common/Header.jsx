@@ -1,29 +1,55 @@
-import React, {useState} from 'react';
-import {Link} from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import Button from './Button';
 import authService from '../../services/authService';
 import {clearUser} from '../../stores/userSlice';
 import Logo from "./Logo.jsx";
 import UserProfileDropdown from './UserProfileDropdown';
-import useUserInfo from '../../hooks/useUserInfo';
-
+import cartService from '../../services/cartService';
+import userService from '../../services/userService';
 const Header = () => {
-    const { isAuthenticated, user } = useSelector((state) => state.user);
-    const cartItems = useSelector((state) => state.cart?.items || []);
+    const {isAuthenticated, user} = useSelector((state) => state.auth);
+    const hasToken = !!authService.getCurrentUser();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [cartSize, setCartSize] = useState(0);
+    const [imageProfile, setImageProfile] = useState(null);
     const handleLogout = () => {
         authService.logout();
         dispatch(clearUser());
+        setImageProfile(null);
+        setCartSize(0);
     };
 
     const handleSearch = (e) => {
         e.preventDefault();
-        // TODO: Implement search functionality
-        console.log('Searching for:', searchQuery);
+        navigate(`/products/search/${encodeURIComponent(searchQuery)}`);
     };
+
+    useEffect(() => {
+        const fetchCartItems = async () => {
+            const response = await cartService.getCartItemCount();
+            if(response) {
+                setCartSize(response);
+            }
+        }
+        const fetchImageProfile = async () => {
+            const response = await userService.getImageProfile();
+            if(response) {
+                setImageProfile(response);
+            }
+        }
+        if(isAuthenticated || hasToken) {   
+            fetchCartItems();   
+            fetchImageProfile();
+        }
+        else {
+            setCartSize(0);
+            setImageProfile(null);
+        }
+    }, [isAuthenticated, hasToken]);
 
     return (
         <header
@@ -35,7 +61,14 @@ const Header = () => {
             />
             <div className="w-full px-4 py-4">
                 <div className="flex items-center justify-between">
-                    <Logo/>
+                    <div className="flex items-center space-x-6">
+                        <Logo/>
+                        <nav className="hidden md:flex items-center space-x-6 pl-10">
+                            <Link to="/products" className="text-white hover:text-gray-300 transition-colors">
+                                All Products
+                            </Link>
+                        </nav>
+                    </div>
 
                     {/* Search Bar */}
                     <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-8">
@@ -92,10 +125,10 @@ const Header = () => {
                                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                                     />
                                 </svg>
-                                {cartItems.length > 0 && (
+                                {cartSize > 0 && (
                                     <span
                                         className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartItems.length}
+                    {cartSize}
                   </span>
                                 )}
                             </button>
@@ -103,7 +136,7 @@ const Header = () => {
 
                         {isAuthenticated ? (
                             <>
-                                <UserProfileDropdown user={user} />
+                                <UserProfileDropdown user={user} imageProfile={imageProfile}/>
                             </>
                         ) : (
                             <>

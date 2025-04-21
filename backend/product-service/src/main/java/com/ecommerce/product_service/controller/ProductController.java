@@ -1,9 +1,14 @@
 package com.ecommerce.product_service.controller;
 
+import com.ecommerce.product_service.entity.Product;
+import com.ecommerce.product_service.model.ProductCardResponse;
 import com.ecommerce.product_service.model.ProductCreationRequest;
+import com.ecommerce.product_service.model.ProductPageResponse;
+import com.ecommerce.product_service.model.UpdateProductRequest;
 import com.ecommerce.product_service.service.ProductService;
 import com.ecommerce.product_service.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +26,23 @@ public class ProductController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping("/")
-    public ResponseEntity<?> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    @GetMapping("/all-products")
+    public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Page<ProductCardResponse> products = productService.getAllProducts(page, size);
+        return ResponseEntity.ok(new ProductPageResponse<>(products));
+    }
+
+    @GetMapping("/most-popular")
+    public ResponseEntity<?> getMostPopularProducts() {
+        List<ProductCardResponse> products = productService.getMostPopularProducts();
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/newest-items")
+    public ResponseEntity<?> getFeaturedProducts() {
+        List<ProductCardResponse> products = productService.getNewestProducts();
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
@@ -35,8 +54,8 @@ public class ProductController {
     public ResponseEntity<?> addProduct(@RequestHeader("Authorization") String token,
                                         @RequestBody ProductCreationRequest productCreationRequest) {
 
-        Long userId = jwtUtil.extractUserId(token.substring(7));
-        return ResponseEntity.ok(productService.addProduct(userId, productCreationRequest));
+        Long sellerId = jwtUtil.extractUserId(token.substring(7));
+        return ResponseEntity.ok(productService.addProduct(sellerId, productCreationRequest));
     }
     @PostMapping(value = "/upload-image/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@PathVariable("productId") Long productId,
@@ -44,19 +63,23 @@ public class ProductController {
         return ResponseEntity.ok(productService.uploadProductImage(productId ,images));
     }
     @PutMapping("/update-product/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @RequestBody ProductCreationRequest productCreationRequest) {
-        return ResponseEntity.ok(productService.updateProduct(productId, productCreationRequest));
+    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @RequestBody UpdateProductRequest updateProductRequest) {
+        return ResponseEntity.ok(productService.updateProduct(productId, updateProductRequest));
     }
     @DeleteMapping("/delete-product/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.deleteProduct(productId));
     }
     @GetMapping("/search")
-    public ResponseEntity<?> searchProducts(@RequestParam String query) {
-        return ResponseEntity.ok(productService.searchProducts(query));
+    public ResponseEntity<?> searchProducts(@RequestParam String query, @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        Page<ProductCardResponse> products = productService.searchProducts(query, page, size);
+        return ResponseEntity.ok(new ProductPageResponse<>(products));
     }
-    @GetMapping("/category/{categoryName}")
-    public ResponseEntity<?> getProductsByCategory(@PathVariable String categoryName) {
-        return ResponseEntity.ok(productService.getProductsByCategory(categoryName));
+    @GetMapping("/category")
+    public ResponseEntity<?> getProductsByCategory(@RequestParam String categoryName, @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "10") int size) {
+        Page<ProductCardResponse> products = productService.getProductsByCategory(categoryName, page, size);
+        return ResponseEntity.ok(new ProductPageResponse<>(products));
     }
 }

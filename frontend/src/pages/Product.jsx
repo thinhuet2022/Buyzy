@@ -1,77 +1,105 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import ProductGallery from '../components/product/ProductGallery';
 import ProductInfo from '../components/product/ProductInfo';
 import ProductReviews from '../components/product/ProductReviews';
+import productService from '../services/productService';
+import cartService from '../services/cartService';
+import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import authService from '../services/authService';
 
 const Product = () => {
     const navigate = useNavigate();
-    const {id} = useParams();
-    const [product] = useState({
-        id: id,
-        name: 'Premium Wireless Headphones',
-        brand: 'AudioTech',
-        price: 299.99,
-        originalPrice: 399.99,
-        discount: 25,
-        description: 'Experience crystal-clear sound with our premium wireless headphones. Featuring noise cancellation, 30-hour battery life, and comfortable over-ear design.',
-        features: [
-            'Active Noise Cancellation',
-            '30-hour battery life',
-            'Bluetooth 5.0',
-            'Built-in microphone',
-            'Foldable design',
-        ],
-        variants: {
-            color: ['#000000', '#FFFFFF', '#B22222', '#4169E1'],
-            size: ['S', 'M', 'L', 'XL'],
-            material: ['Leather', 'Synthetic', 'Mesh'],
-            style: ['Over-Ear', 'On-Ear', 'In-Ear'],
-            connectivity: ['Bluetooth', 'Wired', 'Both']
-        },
-        shop: {
-            name: 'AudioTech Official Store',
-            avatar: 'https://images.unsplash.com/photo-1567443024551-f3e3dee5f6b3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c3RvcmV8ZW58MHx8MHx8fDA%3D',
-            rating: 4.8,
-            reviews: 1250
-        },
-        images: [
-            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-            'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-            'https://images.unsplash.com/photo-1612444530582-fc66183b16f7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-        ],
-    });
+    const {productId} = useParams();
+    const [product, setProduct] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const hasToken = !!authService.getCurrentUser();
 
-    const [reviews] = useState([
-        {
-            id: 1,
-            user: {
-                name: 'Sarah Johnson',
-                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww',
-            },
-            rating: 5,
-            date: '2 days ago',
-            comment: 'Amazing sound quality and very comfortable to wear for long periods. The noise cancellation is impressive!',
-        },
-        {
-            id: 2,
-            user: {
-                name: 'Michael Chen',
-                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww',
-            },
-            rating: 4,
-            date: '1 week ago',
-            comment: 'Great headphones overall. Battery life is excellent, but the ear cushions could be more comfortable.',
-        },
-    ]);
-
-    const handleAddToCart = (quantity) => {
-        console.log('Adding to cart:', {product, quantity});
-        // Here you would typically dispatch an action to add the item to the cart
-        setTimeout(() => {
-            navigate('/cart');
-        }, 0);
+    const fetchProduct = async () => {
+        try {
+            setLoading(true);
+            const response = await productService.getProductById(productId);
+            console.log('Product response:', response);
+            if (response) {
+                setProduct(response);
+                setReviews(response.reviews || []);
+            }
+        } catch (error) {
+            console.error('Error fetching product:', error);
+            setError('Failed to load product. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
     };
+
+    useEffect(() => {
+        if (productId) {
+            fetchProduct();
+        }
+    }, [productId]);
+
+    const handleAddToCart = async (quantity, selectedVariant) => {
+        if(isAuthenticated || hasToken) {
+        console.log('Adding to cart:', {productId, quantity, selectedVariant});
+        const sku = selectedVariant.variantOptions.map(option => option.optionValue).join('-');
+        const response = await cartService.addToCart(productId, quantity, selectedVariant.id, sku);
+            if (response) {
+                toast.success('Product added to cart successfully');
+            } else {
+                toast.error('Failed to add product to cart');
+            }
+        } else {
+            toast.error('Please login to add product to cart');
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-red-500 text-lg">{error}</div>
+            </div>
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-gray-500 text-lg">Product not found</div>
+            </div>
+        );
+    }
+
+    // Transform variant data into a more usable format
+    const variants = product.variant.reduce((acc, variant) => {
+        variant.variantOptions.forEach(option => {
+            if (!acc[option.optionName]) {
+                acc[option.optionName] = new Set();
+            }
+            acc[option.optionName].add(option.optionValue);
+        });
+        return acc;
+    }, {});
+
+    // Convert Sets to Arrays
+    const variantOptions = Object.entries(variants).reduce((acc, [key, value]) => {
+        acc[key] = Array.from(value);
+        return acc;
+    }, {});
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -80,40 +108,20 @@ const Product = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row md:gap-12">
                         <div className="md:w-1/2">
-                            <ProductGallery images={product.images}/>
+                            <ProductGallery images={product.imageUrls.length > 0 ? product.imageUrls : [{imageUrl: 'https://via.placeholder.com/500'}]}/>
                         </div>
                         <div className="md:w-1/2">
-                            <ProductInfo product={product} onAddToCart={handleAddToCart}/>
+                            <ProductInfo 
+                                product={product} 
+                                onAddToCart={handleAddToCart}
+                            />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Full width sections */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-lg  border-gray-200">
-                {/* Shop section */}
-                <div className="bg-white py-4 rounded-xl">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center space-x-4">
-                            <img
-                                src={product.shop.avatar}
-                                alt={product.shop.name}
-                                className="w-16 h-16 rounded-full object-cover"
-                            />
-                            <div>
-                                <h2 className="text-xl font-semibold text-gray-900">{product.shop.name}</h2>
-                                <div className="flex items-center space-x-2 mt-1">
-                                    <span className="text-lg font-medium text-gray-900">{product.shop.rating}</span>
-                                    <span className="text-yellow-400 text-lg">★</span>
-                                    <span
-                                        className="text-gray-600">({product.shop.reviews.toLocaleString()} reviews)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Product details section */}
+            {/* Product details section */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-lg border-gray-200">
                 <div className="bg-gray-50 py-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -123,17 +131,27 @@ const Product = () => {
                                 <p className="text-gray-700 leading-relaxed text-left">{product.description}</p>
                             </div>
 
-                            {/* Features */}
+                            {/* Product Info */}
                             <div className="bg-white p-8 rounded-xl shadow-sm">
-                                <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-left">Key Features</h2>
-                                <ul className="grid grid-cols-1 gap-4">
-                                    {product.features.map((feature, index) => (
-                                        <li key={index} className="flex items-start space-x-3">
-                                            <span className="text-blue-500 text-xl">•</span>
-                                            <span className="text-gray-700">{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-left">Product Information</h2>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Brand:</span>
+                                        <span className="text-gray-900">{product.brand}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Status:</span>
+                                        <span className="text-gray-900">{product.status}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Stock:</span>
+                                        <span className="text-gray-900">{product.stock}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Sold:</span>
+                                        <span className="text-gray-900">{product.soldQuantity}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -143,8 +161,8 @@ const Product = () => {
                 <div className="bg-white py-12 rounded-xl mb-4">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <ProductReviews
-                            reviews={reviews}
-                            averageRating={4.5}
+                            reviews={product.reviews}
+                            averageRating={0} // Since there are no reviews yet
                         />
                     </div>
                 </div>

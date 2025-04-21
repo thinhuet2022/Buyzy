@@ -1,22 +1,49 @@
 import React from 'react';
 import {motion} from 'framer-motion';
-
+import {useNavigate} from 'react-router-dom';
+import { toast } from 'react-toastify';
+import cartService from '../../services/cartService';
+import { useSelector } from 'react-redux';
+import authService from '../../services/authService';
+import { formatCurrency } from '../../utils/formatters';
 const ProductCard = ({product}) => {
+    const navigate = useNavigate();
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const hasToken = !!authService.getCurrentUser();
+    const handleClick = () => {
+        navigate(`/products/${product.productId}`);
+    }
+    const handleAddToCart = async () => {
+        if(isAuthenticated || hasToken) {
+            const response = await cartService.addToCart(product.productId, 1);
+            if (response) {
+            toast.success('Product added to cart successfully');
+        } else {
+                toast.error('Failed to add product to cart');
+            }
+        } else {
+            toast.error('Please login to add product to cart');
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
+        }
+    }
+
     return (
         <motion.div
             whileHover={{y: -5}}
             className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col"
         >
-            <div className="relative">
+            <div className="relative" onClick={handleClick}>
                 <img
-                    src={product.image}
-                    alt={product.name}
+                    src={product.imageUrl || 'https://images.unsplash.com/photo-1610513320995-1ad4bbf25e55?w=500&auto=format&fit=crop&q=60'}
+                    alt={product.productName}
                     className="w-full h-40 object-cover"
                 />
             </div>
             <div className="p-3 flex flex-col flex-grow">
-                <h3 className="text-sm font-semibold line-clamp-2 mb-2">
-                    {product.name}
+                <h3 className="text-sm text-left font-semibold line-clamp-2 mb-2" onClick={handleClick}>
+                    {product.productName}
                 </h3>
                 <div className="flex items-center mb-2">
                     <div className="flex">
@@ -37,21 +64,22 @@ const ProductCard = ({product}) => {
                         ))}
                     </div>
                     <span className="text-gray-500 text-xs ml-1">
-            ({product.reviews})
-          </span>
+                    ({product.rating != "NaN" ? product.rating : 0})
+                </span>
                 </div>
                 <div className="mt-auto flex justify-between items-center">
                     <div className="flex flex-col">
-            <span className="text-primary-600 font-bold text-sm">
-              ${product.price}
-            </span>
-                        <span className="text-xs text-gray-500">
-              {product.sold} sold
-            </span>
+                    <span className="text-primary-600 font-bold text-sm">
+                    {formatCurrency(product.productPrice)}
+                    </span>
+                        <span className="text-left text-xs text-gray-500">
+                    {product.soldQuantity} sold
+                    </span>
                     </div>
                     <button
                         className="p-1.5 rounded-full bg-primary-600 text-white hover:bg-primary-700 transition-colors"
                         aria-label="Add to cart"
+                        onClick={handleAddToCart}
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

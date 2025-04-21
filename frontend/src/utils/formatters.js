@@ -1,14 +1,11 @@
-import { format } from 'date-fns';
+import {format} from 'date-fns';
 
 export const formatDate = (dateString) => {
     return format(new Date(dateString), 'MMMM d, yyyy');
 };
 
 export const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    }).format(amount);
+    return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 };
 
 export const getStatusColor = (status) => {

@@ -1,0 +1,132 @@
+[
+  {
+    "id": 1,
+    "name": "Điện thoại & Phụ kiện",
+    "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 2,
+    "name": "Máy tính & Laptop",
+    "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 3,
+    "name": "Thiết bị gia dụng",
+    "image": "https://images.unsplash.com/photo-1604762433261-a046add6fc11?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  },
+  {
+    "id": 4,
+    "name": "Thiết bị âm thanh",
+    "image": "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 5,
+    "name": "Camera & Phụ kiện",
+    "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 6,
+    "name": "Thời trang nam",
+    "image": "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 7,
+    "name": "Thời trang nữ",
+    "image": "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 8,
+    "name": "Thời trang trẻ em",
+    "image": "https://images.unsplash.com/photo-1647368717808-371ccc5a87af?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 9,
+    "name": "Phụ kiện thời trang",
+    "image": "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 10,
+    "name": "Mỹ phẩm",
+    "image": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 11,
+    "name": "Chăm sóc da",
+    "image": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 12,
+    "name": "Nội thất",
+    "image": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 13,
+    "name": "Dụng cụ nhà bếp",
+    "image": "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 14,
+    "name": "Dụng cụ thể thao",
+    "image": "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 15,
+    "name": "Đồ dùng dã ngoại, cắm trại",
+    "image": "https://images.unsplash.com/photo-1537905569824-f89f14cceb68?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 16,
+    "name": "Túi xách",
+    "image": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 17,
+    "name": "Ví nữ, Ví nam",
+    "image": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 18,
+    "name": "Giày dép nữ",
+    "image": "https://images.unsplash.com/photo-1605733513549-de9b150bd70d?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 19,
+    "name": "Giày dép nam",
+    "image": "https://images.unsplash.com/photo-1512675828443-4f454c42253a?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 20,
+    "name": "Sản phẩm dinh dưỡng",
+    "image": "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 21,
+    "name": "Văn phòng phẩm",
+    "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 22,
+    "name": "Quà tặng",
+    "image": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 23,
+    "name": "Đồ handmade",
+    "image": "https://images.unsplash.com/photo-1632649027900-389e810204e6?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 24,
+    "name": "Đồng hồ nam, nữ",
+    "image": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 25,
+    "name": "Trang sức",
+    "image": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&auto=format&fit=crop&q=60"
+  },
+  {
+    "id": 26,
+    "name": "Phụ kiện game, Console",
+    "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=60"
+  }
+] 

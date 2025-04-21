@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setUser, setError } from '../stores/userSlice';
+import {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {setUser, setError} from '../stores/userSlice';
 import userService from '../services/userService';
 
 const useUserInfo = () => {
     const dispatch = useDispatch();
-    const { isAuthenticated, user } = useSelector((state) => state.user);
+    const {isAuthenticated, user} = useSelector((state) => state.user);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -23,7 +23,7 @@ const useUserInfo = () => {
         fetchUserInfo();
     }, [isAuthenticated, user, dispatch]);
 
-    return { user, isAuthenticated };
+    return {user, isAuthenticated};
 };
 
 export default useUserInfo; 

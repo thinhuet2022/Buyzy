@@ -83,6 +83,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(profileResponse);
     }
 
+    @GetMapping("/user-image")
+    public ResponseEntity<?> getUserImage(@RequestHeader("Authorization") String token) {
+        // Logic to get user image
+        Long userId = jwtUtil.extractUserId(token.substring(7));
+        String imageUrl = userService.getUserImage(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(imageUrl);
+    }
+
 
     @PostMapping(value = "/update-user-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateUserImage(@RequestParam("image") MultipartFile image,

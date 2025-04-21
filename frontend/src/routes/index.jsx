@@ -7,6 +7,7 @@ import PrivateRoute from './PrivateRoute';
 // Lazy load all pages
 const Home = lazy(() => import('../pages/Home'));
 const Product = lazy(() => import('../pages/Product'));
+const ProductsPage = lazy(() => import('../pages/ProductsPage'));
 const Cart = lazy(() => import('../pages/Cart'));
 const Checkout = lazy(() => import('../pages/Checkout'));
 const OrderConfirmation = lazy(() => import('../pages/OrderConfirmation'));
@@ -72,12 +73,15 @@ const AppRoutes = () => {
                 <Suspense fallback={<Loading/>}>
                     <Routes>
                         <Route path="/" element={<Home/>}/>
-                        <Route path="/products/:id" element={<Product/>}/>
+                        <Route path="/products" element={<ProductsPage type="all"/>}/>
+                        <Route path="/products/search/:query" element={<ProductsPage type="search"/>}/>
+                        <Route path="/products/category/:categoryName" element={<ProductsPage type="category"/>}/>
+                        <Route path="/products/:productId" element={<Product/>}/>
                         <Route path="/login" element={<Login/>}/>
                         <Route path="/register" element={<Register/>}/>
-                        <Route path="/forgot-password" element={<ForgotPassword />} />
-                        <Route path="/verify-code" element={<VerifyCode />} />
-                        
+                        <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                        <Route path="/verify-code" element={<VerifyCode/>}/>
+
                         {/* Protected Routes */}
                         <Route
                             path="/cart"
@@ -95,7 +99,7 @@ const AppRoutes = () => {
                                 </PrivateRoute>
                             }
                         />
-                        
+
                         <Route path="/payment/callback" element={
                             <PrivateRoute>
                                 <PaymentCallback/>
@@ -106,26 +110,26 @@ const AppRoutes = () => {
                             <PrivateRoute>
                                 <OrderConfirmation/>
                             </PrivateRoute>
-                        }/> 
-                        
+                        }/>
+
                         <Route path="/profile" element={
                             <PrivateRoute>
                                 <Profile/>
                             </PrivateRoute>
                         }/>
-                        
-                        <Route path="/orders" element={
+
+                        <Route path="/profile/orders" element={
                             <PrivateRoute>
                                 <OrderHistory/>
                             </PrivateRoute>
                         }/>
-                        
+
                         <Route path="/address-update" element={
                             <PrivateRoute>
-                                <AddressUpdate />
+                                <AddressUpdate/>
                             </PrivateRoute>
                         }/>
-                        
+
                         <Route path="*" element={<NotFound/>}/>
                     </Routes>
                 </Suspense>

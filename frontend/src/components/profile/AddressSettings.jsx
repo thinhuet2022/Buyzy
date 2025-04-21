@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import FormInput from '../auth/FormInput';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 
-const AddressSettings = ({ address, onUpdate}) => {
+const AddressSettings = ({address, onUpdate}) => {
     const [formData, setFormData] = useState({
         street: address?.street || '',
         city: address?.city || '',
@@ -15,7 +15,7 @@ const AddressSettings = ({ address, onUpdate}) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,

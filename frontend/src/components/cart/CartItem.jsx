@@ -1,8 +1,9 @@
 import React from 'react';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router-dom';
+import {formatCurrency} from '../../utils/formatters';
 
-const CartItem = ({item, onUpdateQuantity, onRemove}) => {
+const CartItem = ({item, onUpdateQuantity, onRemove, isSelected, onSelect}) => {
     const handleQuantityChange = (value) => {
         const newQuantity = Math.max(1, Math.min(10, item.quantity + value));
         onUpdateQuantity(item.id, newQuantity);
@@ -15,19 +16,31 @@ const CartItem = ({item, onUpdateQuantity, onRemove}) => {
             exit={{opacity: 0, y: -20}}
             className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm"
         >
-            <Link to={`/product/${item.id}`} className="flex-shrink-0">
+            <div className="flex items-center">
+                <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onSelect(item.id)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                />
+            </div>
+
+            <Link to={`/product/${item.productId}`} className="flex-shrink-0">
                 <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item.productImage}
+                    alt={item.productName}
                     className="w-24 h-24 object-cover rounded-lg"
                 />
             </Link>
 
             <div className="flex-1 min-w-0 ">
-                <Link to={`/product/${item.id}`} className="block">
+                <Link to={`/product/${item.productId}`} className="block">
                     <h3 className="text-lg font-medium text-gray-900 truncate text-left">
-                        {item.name}
+                        {item.productName}
                     </h3>
+                    <p className="text-sm text-gray-500 truncate text-left">
+                        {item.sku}
+                    </p>
                 </Link>
                 <div className="mt-2 flex items-center space-x-4">
                     <div className="flex items-center border rounded-lg">
@@ -46,7 +59,7 @@ const CartItem = ({item, onUpdateQuantity, onRemove}) => {
                         </button>
                     </div>
                     <button
-                        onClick={() => onRemove(item.id)}
+                        onClick={() => onRemove(item.id, item.productName)}
                         className="text-red-600 hover:text-red-700 text-sm font-medium"
                     >
                         Remove
@@ -55,14 +68,9 @@ const CartItem = ({item, onUpdateQuantity, onRemove}) => {
             </div>
 
             <div className="text-right">
-                <p className="text-lg font-semibold text-gray-900">
-                    ${(item.price * item.quantity).toFixed(2)}
+                <p className="text-lg font-semibold text-primary-600">
+                    {formatCurrency(item.price * item.quantity)}
                 </p>
-                {/*{item.originalPrice && (*/}
-                {/*    <p className="text-sm text-gray-500 line-through">*/}
-                {/*        ${(item.originalPrice * item.quantity).toFixed(2)}*/}
-                {/*    </p>*/}
-                {/*)}*/}
             </div>
         </motion.div>
     );

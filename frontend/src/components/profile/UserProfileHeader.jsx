@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { formatDate } from '../../utils/dateUtils';
-import { toast } from 'react-toastify';
+import React, {useState, useEffect, useRef} from 'react';
+import {motion} from 'framer-motion';
+import {formatDate} from '../../utils/dateUtils';
+import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const UserProfileHeader = ({ user, onImageChange }) => {
+const UserProfileHeader = ({user, onImageChange}) => {
     const [imageUrl, setImageUrl] = useState(user?.imageUrl);
     const fileInputRef = useRef(null);
 
@@ -57,7 +57,7 @@ const UserProfileHeader = ({ user, onImageChange }) => {
             <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600 relative">
                 <div className="absolute bottom-[-150px] left-6 transform -translate-y-20">
                     <motion.div
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{scale: 1.05}}
                         className="relative group"
                         onClick={handleEditAvatarClick}
                     >
@@ -66,7 +66,8 @@ const UserProfileHeader = ({ user, onImageChange }) => {
                             alt={`${user?.firstName} ${user?.lastName}`}
                             className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
                         />
-                        <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                        <div
+                            className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                             <div className="text-white text-center">
                                 <svg
                                     className="w-6 h-6 mx-auto mb-1"
@@ -162,7 +163,7 @@ const UserProfileHeader = ({ user, onImageChange }) => {
                         </div>
                     </div>
 
-                
+
                 </div>
             </div>
         </div>

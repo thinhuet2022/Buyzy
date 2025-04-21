@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import FormInput from '../auth/FormInput';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 
 const ProfileSettings = ({user, onUpdate}) => {
     const [formData, setFormData] = useState({

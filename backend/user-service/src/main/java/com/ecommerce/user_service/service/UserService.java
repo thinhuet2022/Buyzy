@@ -86,4 +86,10 @@ public class UserService {
         userRepository.save(user);
         return imageUrl;
     }
+
+    public String getUserImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getImageUrl();
+    }
 }

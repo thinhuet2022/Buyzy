@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import OrderRow from '../components/orders/OrderRow';
 import OrderDetailsRow from '../components/orders/OrderDetailsRow';
-import { getStatusColor, getItemCount } from '../utils/formatters';
+import {getStatusColor, getItemCount} from '../utils/formatters';
 import Pagination from '../components/common/Pagination';
-import { sampleOrders } from '../data/sampleOrders';
+import {sampleOrders} from '../data/sampleOrders';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -53,12 +53,12 @@ const OrderHistory = () => {
     }, [selectedOrder]);
 
     const tableHeaders = useMemo(() => [
-        { label: 'Order ID', key: 'id' },
-        { label: 'Date', key: 'date' },
-        { label: 'Status', key: 'status' },
-        { label: 'Total', key: 'total' },
-        { label: 'Items', key: 'items' },
-        { label: 'Actions', key: 'actions' }
+        {label: 'Order ID', key: 'id'},
+        {label: 'Date', key: 'date'},
+        {label: 'Status', key: 'status'},
+        {label: 'Total', key: 'total'},
+        {label: 'Items', key: 'items'},
+        {label: 'Actions', key: 'actions'}
     ], []);
 
     const formatDate = (dateString) => {
@@ -105,37 +105,37 @@ const OrderHistory = () => {
                         Showing {orders.length} of {sampleOrders.length} orders
                     </span>
                 </div>
-                
+
                 <div className="bg-white shadow-sm rounded-lg overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
-                                <tr>
-                                    {tableHeaders.map(header => (
-                                        <th 
-                                            key={header.key}
-                                            className="pl-20 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                        >
-                                            {header.label}
-                                        </th>
-                                    ))}
-                                </tr>
+                            <tr>
+                                {tableHeaders.map(header => (
+                                    <th
+                                        key={header.key}
+                                        className="pl-20 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    >
+                                        {header.label}
+                                    </th>
+                                ))}
+                            </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {orders.map((order) => (
-                                    <React.Fragment key={order.id}>
-                                        <OrderRow
-                                            order={order}
-                                            isSelected={selectedOrder?.id === order.id}
-                                            onToggleDetails={handleToggleDetails}
-                                            getStatusColor={getStatusColor}
-                                            getItemCount={getItemCount}
-                                        />
-                                        {selectedOrder?.id === order.id && (
-                                            <OrderDetailsRow order={order}/>
-                                        )}
-                                    </React.Fragment>
-                                ))}
+                            {orders.map((order) => (
+                                <React.Fragment key={order.id}>
+                                    <OrderRow
+                                        order={order}
+                                        isSelected={selectedOrder?.id === order.id}
+                                        onToggleDetails={handleToggleDetails}
+                                        getStatusColor={getStatusColor}
+                                        getItemCount={getItemCount}
+                                    />
+                                    {selectedOrder?.id === order.id && (
+                                        <OrderDetailsRow order={order}/>
+                                    )}
+                                </React.Fragment>
+                            ))}
                             </tbody>
                         </table>
                     </div>

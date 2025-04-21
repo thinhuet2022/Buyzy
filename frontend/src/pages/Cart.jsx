@@ -1,30 +1,69 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {motion, AnimatePresence} from 'framer-motion';
 import CartItem from '../components/cart/CartItem';
 import CartSummary from '../components/cart/CartSummary';
+import cartService from '../services/cartService';
+import ConfirmationModal from '../components/common/ConfirmationModal';
+import { toast } from 'react-toastify';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState([
-        {
-            id: 1,
-            name: 'Premium Wireless Headphones',
-            brand: 'AudioTech',
-            price: 299.99,
-            originalPrice: 399.99,
-            image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-            quantity: 1,
-        },
-        {
-            id: 2,
-            name: 'Smart Watch Pro',
-            brand: 'TechWear',
-            price: 249.99,
-            image: 'https://images.unsplash.com/photo-1545579133-99bb5ab189bd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c21hcnQlMjB3YXRjaHxlbnwwfHwwfHx8MA%3D%3D',
-            quantity: 2,
-        },
-    ]);
+    const [cartItems, setCartItems] = useState([]);
+    const initialCartItemsRef = useRef([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedItems, setSelectedItems] = useState(new Set());
+    const [modalState, setModalState] = useState({
+        isOpen: false,
+        itemId: null,
+        itemName: '',
+        type: 'single'
+    });
+
+    useEffect(() => {
+        const fetchCartItems = async () => {
+            try {
+                const response = await cartService.getCart();
+                if(response) {
+                    setCartItems(response);
+                    initialCartItemsRef.current = response;
+                }
+            } catch (error) {
+                console.error('Error fetching cart items:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchCartItems();
+    
+    }, []);
+
+    // Cleanup function to update changed items
+    useEffect(() => {
+        return () => {
+            const updateChangedItems = async () => {
+                const initialItems = initialCartItemsRef.current;
+                const currentItems = cartItems;
+
+                // Find items that have changed quantity
+                const changedItems = currentItems.filter(currentItem => {
+                    const initialItem = initialItems.find(item => item.id === currentItem.id);
+                    return initialItem && initialItem.quantity !== currentItem.quantity;
+                });
+
+                // Update each changed item
+                for (const item of changedItems) {
+                    try {
+                        await cartService.updateCartItem(item.id, item.quantity);
+                    } catch (error) {
+                        console.error(`Error updating cart item ${item.id}:`, error);
+                    }
+                }
+            };
+
+            updateChangedItems();
+        };
+    }, [cartItems]);
 
     const handleUpdateQuantity = (itemId, newQuantity) => {
         setCartItems((prevItems) =>
@@ -34,8 +73,63 @@ const Cart = () => {
         );
     };
 
-    const handleRemoveItem = (itemId) => {
-        setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+    const handleRemoveClick = (itemId, itemName) => {
+        setModalState({
+            isOpen: true,
+            itemId,
+            itemName,
+            type: 'single'
+        });
+    };
+
+    const handleClearCartClick = () => {
+        setModalState({
+            isOpen: true,
+            itemId: null,
+            itemName: '',
+            type: 'all'
+        });
+    };
+
+    const handleClearCartConfirm = async () => {
+        try {
+            const response = await cartService.clearCart();
+            if(response) {
+                toast.success('Cart cleared successfully');
+                setCartItems([]);
+                initialCartItemsRef.current = [];
+            }
+            else {
+                toast.error('Error clearing cart');
+            }
+        } catch (error) {
+            toast.error('Error clearing cart');
+            console.error('Error clearing cart:', error);
+        }
+        setModalState({ isOpen: false, itemId: null, itemName: '', type: 'single' });
+    };
+
+    const handleRemoveConfirm = async () => {
+        const { itemId, type } = modalState;
+        if (type === 'single') {
+            try {
+                const response = await cartService.removeFromCart(itemId);
+                if(response) {
+                    toast.success('Item removed from cart successfully');
+                    setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+                }
+            } catch (error) {
+                console.error('Error removing item:', error);
+            }
+        } else {
+            
+            await handleClearCartConfirm();
+        }
+        setModalState({ isOpen: false, itemId: null, itemName: '', type: 'single' });
+    };
+
+    const handleRemoveCancel = () => {
+        setModalState({ isOpen: false, itemId: null, itemName: '', type: 'single' });
     };
 
     const calculateSubtotal = () => {
@@ -46,20 +140,58 @@ const Cart = () => {
     };
 
     const calculateShipping = () => {
-        return cartItems.length > 0 ? 10 : 0;
+        return cartItems.length > 0 ? 10000 : 0;
     };
 
     const calculateTax = () => {
-        return calculateSubtotal() * 0.05; // 10% tax
+        return calculateSubtotal() * 0.03; // 10% tax
     };
 
     const calculateTotal = () => {
         return calculateSubtotal() + calculateShipping() + calculateTax();
     };
 
-    const handleCheckout = () => {
-        navigate('/checkout');
+    const handleItemSelect = (itemId) => {
+        setSelectedItems(prev => {
+            const newSelected = new Set(prev);
+            if (newSelected.has(itemId)) {
+                newSelected.delete(itemId);
+            } else {
+                newSelected.add(itemId);
+            }
+            return newSelected;
+        });
     };
+
+    const handleCheckout = () => {
+        if (selectedItems.size === 0) {
+            toast.error('Please select at least one item to checkout');
+            return;
+        }
+
+        const selectedCartItems = cartItems
+            .filter(item => selectedItems.has(item.id))
+            .map(item => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                cartItemId: item.id
+            }));
+
+        // Navigate to checkout with the selected items
+        navigate('/checkout', { state: { selectedItems: selectedCartItems } });
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">
@@ -90,10 +222,20 @@ const Cart = () => {
                                         key={item.id}
                                         item={item}
                                         onUpdateQuantity={handleUpdateQuantity}
-                                        onRemove={handleRemoveItem}
+                                        onRemove={() => handleRemoveClick(item.id, item.productName)}
+                                        isSelected={selectedItems.has(item.id)}
+                                        onSelect={handleItemSelect}
                                     />
                                 ))}
                             </AnimatePresence>
+                            <div className="flex justify-end mt-4">
+                                <button
+                                    onClick={handleClearCartClick}
+                                    className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700"
+                                >
+                                    Clear Cart
+                                </button>
+                            </div>
                         </div>
 
                         <div className="lg:col-span-1">
@@ -108,6 +250,16 @@ const Cart = () => {
                     </div>
                 )}
             </div>
+
+            <ConfirmationModal
+                isOpen={modalState.isOpen}
+                onClose={handleRemoveCancel}
+                onConfirm={handleRemoveConfirm}
+                title={modalState.type === 'all' ? "Clear Cart" : "Remove Item"}
+                message={modalState.type === 'all' 
+                    ? "Are you sure you want to remove all items from your cart?"
+                    : `Are you sure you want to remove "${modalState.itemName}" from your cart?`}
+            />
         </div>
     );
 };
