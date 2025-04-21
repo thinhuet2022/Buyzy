@@ -61,11 +61,11 @@ services:
       - DB_NAME=user_service_db
       - DB_USER=root
       - DB_PASSWORD=root
-      - GMAIL_USERNAME=thinhvnu2022@gmail.com
-      - GMAIL_PASSWORD=obya ljvj zcky fmis
-      - CLOUDINARY_CLOUD_NAME=dpglmold8
-      - CLOUDINARY_API_KEY=276957136688385
-      - CLOUDINARY_API_SECRET=9vaw4XoLQM4jwW-J1YaLgYQu26Y
+      - GMAIL_USERNAME=${GMAIL_USERNAME}
+      - GMAIL_PASSWORD=${GMAIL_PASSWORD}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     networks:
       - backend
 
@@ -91,9 +91,9 @@ services:
       - DB_NAME=product_service_db
       - DB_USER=root
       - DB_PASSWORD=root
-      - CLOUDINARY_CLOUD_NAME=dpglmold8
-      - CLOUDINARY_API_KEY=276957136688385
-      - CLOUDINARY_API_SECRET=9vaw4XoLQM4jwW-J1YaLgYQu26Y
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     networks:
       - backend
 
