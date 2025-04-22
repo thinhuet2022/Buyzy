@@ -208,4 +208,19 @@ public class ProductService {
         }
         return productCardResponse;
     }
+
+    public Object updateInventory(List<InventoryUpdateRequest> inventoryUpdateRequests) {
+        for (InventoryUpdateRequest inventoryUpdateRequest : inventoryUpdateRequests) {
+            Product product = productRepository.findById(inventoryUpdateRequest.getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
+            product.setStock(product.getStock() - inventoryUpdateRequest.getQuantity());
+            product.setSoldQuantity(product.getSoldQuantity() + inventoryUpdateRequest.getQuantity());
+            for(Variant variant : product.getVariant()) {
+                if(Objects.equals(variant.getId(), inventoryUpdateRequest.getVariantId())) {
+                    variant.setStock(variant.getStock() - inventoryUpdateRequest.getQuantity());
+                }
+            }
+            productRepository.save(product);
+        }
+        return "Inventory updated successfully";
+    }
 }

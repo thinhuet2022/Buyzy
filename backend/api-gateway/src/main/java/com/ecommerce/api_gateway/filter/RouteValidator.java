@@ -18,7 +18,8 @@ public class RouteValidator {
             "/api/v1/products/most-popular",
             "/api/v1/products/{id}",
             "/api/v1/products/category",
-            "api/v1/products/all-products"
+            "api/v1/products/all-products",
+            "/api/v1/payment/vn-pay-return"
     );
 
 //    public Predicate<ServerHttpRequest> isSecured =

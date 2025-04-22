@@ -60,4 +60,11 @@ public class CartController {
     public ResponseEntity<?> checkout(@RequestBody List<CheckoutItemRequest> checkoutItemRequests) {
         return ResponseEntity.ok(cartService.checkout(checkoutItemRequests));
     }
+
+    @PutMapping("/remove-checkout-item")
+    public ResponseEntity<?> removeCheckoutItem(@RequestHeader("Authorization") String token
+            ,@RequestBody List<CheckoutItemRequest> checkoutItemRequests) {
+        Long userId = jwtUtil.extractUserId(token.substring(7));
+        return ResponseEntity.ok(cartService.removeCheckoutItem(userId, checkoutItemRequests));
+    }
 }

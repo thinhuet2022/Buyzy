@@ -4,33 +4,27 @@ import OrderDetailsRow from '../components/orders/OrderDetailsRow';
 import {getStatusColor, getItemCount} from '../utils/formatters';
 import Pagination from '../components/common/Pagination';
 import {sampleOrders} from '../data/sampleOrders';
-
-const ITEMS_PER_PAGE = 10;
+import orderService from '../services/orderService';
+const ITEMS_PER_PAGE = 20;
 
 const OrderHistory = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-
+    const [totalElements, setTotalElements] = useState(0);
     useEffect(() => {
-        // Simulate API call with sample data
         const fetchOrders = async () => {
             try {
                 setLoading(true);
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                // Calculate pagination
-                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-                const endIndex = startIndex + ITEMS_PER_PAGE;
-                const paginatedOrders = sampleOrders.slice(startIndex, endIndex);
-                const total = Math.ceil(sampleOrders.length / ITEMS_PER_PAGE);
-
-                setOrders(paginatedOrders);
-                setTotalPages(total);
+                const response = await orderService.getOrderHistory({page: currentPage, size: ITEMS_PER_PAGE});
+                console.log(response);
+                setOrders(response.content);
+                setTotalPages(response.totalPages);
+                setTotalElements(response.totalElements);
+                setCurrentPage(response.currentPage);
                 setError(null);
             } catch (err) {
                 setError('Failed to fetch orders. Please try again later.');
@@ -49,15 +43,19 @@ const OrderHistory = () => {
     }, []);
 
     const handleToggleDetails = useCallback((order) => {
-        setSelectedOrder(selectedOrder?.id === order.id ? null : order);
+        setSelectedOrder(selectedOrder?.orderId === order.orderId ? null : order);
     }, [selectedOrder]);
 
+    const handleOrderCancelled = (orderId) => {
+        setOrders(orders.map(order => order.orderId === orderId ? {...order, orderStatus: 'CANCELLED'} : order));
+    };
+
     const tableHeaders = useMemo(() => [
-        {label: 'Order ID', key: 'id'},
-        {label: 'Date', key: 'date'},
-        {label: 'Status', key: 'status'},
-        {label: 'Total', key: 'total'},
-        {label: 'Items', key: 'items'},
+        {label: 'Order ID', key: 'orderId'},
+        {label: 'Date', key: 'createdAt'},
+        {label: 'Status', key: 'orderStatus'},
+        {label: 'Total', key: 'totalPrice'},
+        {label: 'Items', key: 'quantity'},
         {label: 'Actions', key: 'actions'}
     ], []);
 
@@ -65,24 +63,7 @@ const OrderHistory = () => {
         return format(new Date(dateString), 'MMMM d, yyyy');
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
-    };
 
-    // if (loading) {
-    //     return (
-    //         <div className="min-h-screen bg-gray-50 py-8">
-    //             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    //                 <div className="flex justify-center items-center h-64">
-    //                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     );
-    // }
 
     if (error) {
         return (
@@ -102,7 +83,7 @@ const OrderHistory = () => {
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-semibold text-gray-900">Order History</h1>
                     <span className="text-sm text-gray-500">
-                        Showing {orders.length} of {sampleOrders.length} orders
+                        Showing {orders.length} of {totalElements} orders
                     </span>
                 </div>
 
@@ -123,16 +104,16 @@ const OrderHistory = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                             {orders.map((order) => (
-                                <React.Fragment key={order.id}>
+                                <React.Fragment key={order.orderId}>
                                     <OrderRow
                                         order={order}
-                                        isSelected={selectedOrder?.id === order.id}
+                                        isSelected={selectedOrder?.orderId === order.orderId}
                                         onToggleDetails={handleToggleDetails}
-                                        getStatusColor={getStatusColor}
-                                        getItemCount={getItemCount}
                                     />
-                                    {selectedOrder?.id === order.id && (
-                                        <OrderDetailsRow order={order}/>
+                                    {selectedOrder?.orderId === order.orderId && (
+                                        <OrderDetailsRow order={order}
+                                        onOrderCancelled={handleOrderCancelled}
+                                        />
                                     )}
                                 </React.Fragment>
                             ))}
@@ -144,7 +125,7 @@ const OrderHistory = () => {
                 {totalPages > 1 && (
                     <div className="mt-6">
                         <Pagination
-                            currentPage={currentPage}
+                            currentPage={currentPage + 1}
                             totalPages={totalPages}
                             onPageChange={handlePageChange}
                         />

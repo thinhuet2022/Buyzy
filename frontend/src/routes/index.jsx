@@ -100,7 +100,7 @@ const AppRoutes = () => {
                             }
                         />
 
-                        <Route path="/payment/callback" element={
+                        <Route path="/payment-result" element={
                             <PrivateRoute>
                                 <PaymentCallback/>
                             </PrivateRoute>
@@ -118,7 +118,7 @@ const AppRoutes = () => {
                             </PrivateRoute>
                         }/>
 
-                        <Route path="/profile/orders" element={
+                        <Route path="/orders" element={
                             <PrivateRoute>
                                 <OrderHistory/>
                             </PrivateRoute>

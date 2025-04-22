@@ -27,18 +27,18 @@ services:
     networks:
       - backend
 
-  #  mysql-order:
-  #    image: mysql:8
-  #    container_name: mysql-order
-  #    environment:
-  #      MYSQL_ROOT_PASSWORD: root
-  #      MYSQL_DATABASE: order_service_db
-  #    ports:
-  #      - "3307:3306"
-  #    volumes:
-  #      - mysql-order-data:/var/lib/mysql
-  #    networks:
-  #      - backend
+  mysql-order:
+    image: mysql:8
+    container_name: mysql-order
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: order_service_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-order-data:/var/lib/mysql
+    networks:
+      - backend
 
   user-service:
     build:
@@ -97,29 +97,36 @@ services:
     networks:
       - backend
 
-  #  order-service:
-  #    build:
-  #        context: ./backend/order-service   # nơi chứa Dockerfile và mã nguồn Spring Boot
-  #    container_name: order-service
-  #    depends_on:
-  #      - mysql-order
-  #    ports:
-  #      - "8083:8083"
-  #    volumes:
-  #      - ./backend/order-service:/app # Mount mã nguồn vào container
-  #      - ~/.m2:/root/.m2     # dùng cache Maven
-  #    working_dir: /app    # Đặt thư mục làm việc là nơi chứa code
-  #    environment:
-  #      - JAVA_OPTS=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true # Enable hot reload
-  #      - SPRING_PROFILES_ACTIVE=dev # Chọn profile dev
-  #      - PORT=8083
-  #      - DB_HOST=mysql-order
-  #      - DB_PORT=3306
-  #      - DB_NAME=order_service_db
-  #      - DB_USER=root
-  #      - DB_PASSWORD=root
-  #    networks:
-  #      - backend
+  order-service:
+    build:
+        context: ./backend/order-service   # nơi chứa Dockerfile và mã nguồn Spring Boot
+    container_name: order-service
+    depends_on:
+      - mysql-order
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./backend/order-service:/app # Mount mã nguồn vào container
+      - ~/.m2:/root/.m2     # dùng cache Maven
+    working_dir: /app    # Đặt thư mục làm việc là nơi chứa code
+    environment:
+      - JAVA_OPTS=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true # Enable hot reload
+      - SPRING_PROFILES_ACTIVE=dev # Chọn profile dev
+      - PORT=8083
+      - DB_HOST=mysql-order
+      - DB_PORT=3306
+      - DB_NAME=order_service_db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - PRODUCT_SERVICE_HOST=product-service
+      - PRODUCT_SERVICE_PORT=8082
+      - VNPAY_URL=${VNPAY_URL}
+      - VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
+      - VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
+      - VNPAY_RETURN_URL=${VNPAY_RETURN_URL}
+      - PAYMENT_RESULT_URL=${PAYMENT_RESULT_URL}
+    networks:
+      - backend
 
   api-gateway:
     build:

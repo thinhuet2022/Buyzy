@@ -1,10 +1,7 @@
 package com.ecommerce.product_service.controller;
 
 import com.ecommerce.product_service.entity.Product;
-import com.ecommerce.product_service.model.ProductCardResponse;
-import com.ecommerce.product_service.model.ProductCreationRequest;
-import com.ecommerce.product_service.model.ProductPageResponse;
-import com.ecommerce.product_service.model.UpdateProductRequest;
+import com.ecommerce.product_service.model.*;
 import com.ecommerce.product_service.service.ProductService;
 import com.ecommerce.product_service.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +62,17 @@ public class ProductController {
     @PutMapping("/update-product/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable Long productId, @RequestBody UpdateProductRequest updateProductRequest) {
         return ResponseEntity.ok(productService.updateProduct(productId, updateProductRequest));
+    }
+
+    @PostMapping("/update-inventory")
+    public ResponseEntity<?> updateInventory(@RequestHeader(name = "Authorization") String token,
+                                             @RequestBody List<InventoryUpdateRequest> inventoryUpdateRequests) {
+        String tokenWithoutBearer = token.substring(7);
+        System.out.println(tokenWithoutBearer);
+        if(jwtUtil.isTokenExpired(token.substring(7))) {
+            return ResponseEntity.status(401).body("Token expired");
+        }
+        return ResponseEntity.ok(productService.updateInventory(inventoryUpdateRequests));
     }
     @DeleteMapping("/delete-product/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {

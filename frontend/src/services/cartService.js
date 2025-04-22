@@ -61,6 +61,15 @@ const cartService = {
         }
     },
 
+    async clearCartItems(checkoutItemRequests) {
+        try {
+            requireAuth();
+            return await apiInstance.put('/cart/remove-checkout-item', checkoutItemRequests);
+        } catch (error) {
+            throw error;
+        }
+    },
+
     async getCheckoutItems(data) {
         try {
             requireAuth();

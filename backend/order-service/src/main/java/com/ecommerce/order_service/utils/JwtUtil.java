@@ -1,30 +1,20 @@
 package com.ecommerce.order_service.utils;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
 @Service
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "JxADc+fxold2eO2L9uEUQk2Onjt4xGO6kIZMF+320A4=";
-    private static final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 giờ
-
-    // ✅ Tạo JWT Token với userId và email
-    public String generateToken(Long userId, String email) {
-        return Jwts.builder()
-                .setSubject(String.valueOf(userId))              // userId là sub
-                .claim("email", email)                           // thêm email
-                .setIssuedAt(new Date())                         // ngày phát hành
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // hết hạn
-                .signWith(SignatureAlgorithm.HS256, key)
-                .compact();
-    }
 
     // ✅ Trích xuất userId (ở sub)
     public Long extractUserId(String token) {
@@ -54,9 +44,13 @@ public class JwtUtil {
     // ✅ Lấy claims chung
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSignKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+    private Key getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

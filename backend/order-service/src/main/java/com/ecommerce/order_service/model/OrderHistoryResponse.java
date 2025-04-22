@@ -1,10 +1,13 @@
 package com.ecommerce.order_service.model;
 
+import com.ecommerce.order_service.entity.Order;
 import com.ecommerce.order_service.enums.OrderStatus;
 import com.ecommerce.order_service.enums.PaymentMethod;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class OrderHistoryResponse {
 
     private Long orderId;
@@ -14,4 +17,6 @@ public class OrderHistoryResponse {
     private double totalPrice;
     private String shippingAddress;
     private PaymentMethod paymentMethod;
+    private Integer quantity;
+    private Order order;
 }

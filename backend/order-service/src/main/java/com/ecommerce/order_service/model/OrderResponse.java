@@ -3,11 +3,13 @@ package com.ecommerce.order_service.model;
 import com.ecommerce.order_service.entity.OrderItems;
 import com.ecommerce.order_service.enums.OrderStatus;
 import com.ecommerce.order_service.enums.PaymentMethod;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
 public class OrderResponse {
     private Long orderId;
     private List<OrderItems> orderItems;

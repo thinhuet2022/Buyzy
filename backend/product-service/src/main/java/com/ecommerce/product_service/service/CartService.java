@@ -203,4 +203,12 @@ public class CartService {
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
         return (long) cart.getItems().size();
     }
+
+    public Object removeCheckoutItem(Long userId, List<CheckoutItemRequest> checkoutItemRequests) {
+        Long cartId = getCartId(userId);
+        for (CheckoutItemRequest item : checkoutItemRequests) {
+            removeFromCart(cartId,item.getCartItemId());
+        }
+        return "Checkout items have been removed";
+    }
 }
