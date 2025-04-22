@@ -8,6 +8,8 @@ import Logo from "./Logo.jsx";
 import UserProfileDropdown from './UserProfileDropdown';
 import cartService from '../../services/cartService';
 import userService from '../../services/userService';
+import { toast } from 'react-toastify';
+
 const Header = () => {
     const {isAuthenticated, user} = useSelector((state) => state.auth);
     const hasToken = !!authService.getCurrentUser();
@@ -16,6 +18,8 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [cartSize, setCartSize] = useState(0);
     const [imageProfile, setImageProfile] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleLogout = () => {
         authService.logout();
         dispatch(clearUser());
@@ -29,26 +33,53 @@ const Header = () => {
     };
 
     useEffect(() => {
-        const fetchCartItems = async () => {
-            const response = await cartService.getCartItemCount();
-            if(response) {
-                setCartSize(response);
+        const fetchUserData = async () => {
+            if (!isAuthenticated && !hasToken) {
+                setCartSize(0);
+                setImageProfile(null);
+                return;
             }
-        }
-        const fetchImageProfile = async () => {
-            const response = await userService.getImageProfile();
-            if(response) {
-                setImageProfile(response);
+
+            setIsLoading(true);
+            try {
+                // Fetch cart items
+                const cartResponse = await cartService.getCartItemCount();
+                if (cartResponse) {
+                    setCartSize(cartResponse);
+                }
+
+                // Fetch profile image
+                const profileResponse = await userService.getImageProfile();
+                if (profileResponse) {
+                    setImageProfile(profileResponse);
+                } else {
+                    console.warn('No profile image received from API');
+                    setImageProfile(null);
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                // If there's an error, check if token is still valid
+                if (error.response?.status === 401) {
+                    toast.error('Session expired. Please login again.');
+                    handleLogout();
+                }
+            } finally {
+                setIsLoading(false);
             }
-        }
-        if(isAuthenticated || hasToken) {   
-            fetchCartItems();   
-            fetchImageProfile();
-        }
-        else {
-            setCartSize(0);
-            setImageProfile(null);
-        }
+        };
+
+        fetchUserData();
+
+        // Set up an interval to periodically check authentication
+        const authCheckInterval = setInterval(() => {
+            const currentToken = authService.getCurrentUser();
+            if (!currentToken && (isAuthenticated || hasToken)) {
+                console.log('Token expired, logging out...');
+                handleLogout();
+            }
+        }, 300000); // Check every 5 minutes
+
+        return () => clearInterval(authCheckInterval);
     }, [isAuthenticated, hasToken]);
 
     return (

@@ -3,12 +3,12 @@ import {motion} from 'framer-motion';
 
 const OrderDetails = ({order}) => {
     const getStatusColor = (status) => {
-        switch (status.toLowerCase()) {
-            case 'processing':
+        switch (status) {
+            case 'PENDING':
                 return 'bg-yellow-100 text-yellow-800';
-            case 'shipped':
+            case 'PROCESSING':
                 return 'bg-blue-100 text-blue-800';
-            case 'delivered':
+            case 'COMPLETED':
                 return 'bg-green-100 text-green-800';
             default:
                 return 'bg-gray-100 text-gray-800';
@@ -27,7 +27,7 @@ const OrderDetails = ({order}) => {
                         Order #{order.id}
                     </h2>
                     <p className="text-sm text-gray-500">
-                        Placed on {new Date(order.date).toLocaleDateString()}
+                        Placed on {new Date(order.createdAt).toLocaleDateString('en-GB')}
                     </p>
                 </div>
                 <span
@@ -43,10 +43,8 @@ const OrderDetails = ({order}) => {
                 <div>
                     <h3 className="text-sm font-medium text-gray-500">Shipping Address</h3>
                     <p className="mt-1 text-sm text-gray-900">
-                        {order.shippingAddress.street + ' '}
-                        {order.shippingAddress.city + ' '}{order.shippingAddress.state + ' '}
-                        {order.shippingAddress.zipCode},
-                        {' ' + order.shippingAddress.country}
+                        {order.shippingAddress}
+                        
                     </p>
                 </div>
 
@@ -54,7 +52,7 @@ const OrderDetails = ({order}) => {
                     <h3 className="text-sm font-medium text-gray-500">Payment Method</h3>
                     <div className="mt-1 flex items-center">
                         <div className="flex-shrink-0">
-                            {order.paymentMethod === 'credit_card' ? (
+                            {order.payment.paymentMethod === 'CASH_ON_DELIVERY' ? (
                                 <svg
                                     className="h-6 w-6 text-gray-400"
                                     fill="currentColor"
@@ -76,14 +74,9 @@ const OrderDetails = ({order}) => {
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-900">
-                                {order.paymentMethod === 'credit_card'
-                                    ? `•••• ${order.cardLastFour}`
-                                    : 'PayPal'}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                                {order.paymentMethod === 'credit_card'
-                                    ? 'Credit Card'
-                                    : 'PayPal Account'}
+                                {order.payment.paymentMethod === 'CASH_ON_DELIVERY'
+                                    ? 'Cash on delivery'
+                                    : 'VNPAY'}
                             </p>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class PlaceOrderRequest {
     private List<OrderRequest> orderRequest;
-    private String address;
+    private ShippingAddress address;
     private PaymentMethod paymentMethod;
+    private Double total;
 }

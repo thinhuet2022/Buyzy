@@ -8,8 +8,10 @@ import lombok.Setter;
 @Setter
 public class OrderRequest {
     private Long productId;
-    private int quantity;
-    private String description;
-    private Double price;
+    private Long quantity;
+    private String productName;
+    private Double totalPrice;
     private String imageUrl;
+    private Long variantId;
+    private String sku;
 }

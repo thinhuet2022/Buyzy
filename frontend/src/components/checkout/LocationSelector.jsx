@@ -1,14 +1,14 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import axios from 'axios';
-
+import addressService from '../../services/addressService';
+import { toTitleCase } from '../../utils/formatters';
 const LocationSelector = ({onChange}) => {
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
 
-    const [selectedProvince, setSelectedProvince] = useState('');
-    const [selectedDistrict, setSelectedDistrict] = useState('');
-    const [selectedWard, setSelectedWard] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState({});
+    const [selectedDistrict, setSelectedDistrict] = useState({});
+    const [selectedWard, setSelectedWard] = useState({});
 
     const [isLoading, setIsLoading] = useState({
         provinces: false,
@@ -23,18 +23,12 @@ const LocationSelector = ({onChange}) => {
     });
 
     // Transform API response to consistent format
-    const transformData = (data) => {
+    const transformData = (data, ID, NAME) => {
         if (!data) return [];
         if (Array.isArray(data)) {
             return data.map(item => ({
-                code: item.code || item.id || item.value || '',
-                name: item.name || item.label || ''
-            }));
-        }
-        if (typeof data === 'object') {
-            return Object.entries(data).map(([code, name]) => ({
-                code,
-                name: typeof name === 'object' ? name.name || name.label || code : name
+                id: item[ID] || '',
+                name: toTitleCase(item[NAME]) || ''
             }));
         }
         return [];
@@ -46,8 +40,8 @@ const LocationSelector = ({onChange}) => {
             setIsLoading(prev => ({...prev, provinces: true}));
             setError(prev => ({...prev, provinces: null}));
             try {
-                const response = await axios.get('/api/v1/address/rovinces');
-                const transformedData = transformData(response.data);
+                const response = await addressService.getProvinces();
+                const transformedData = transformData(response.data.data, 'PROVINCE_ID', 'PROVINCE_NAME');
                 setProvinces(transformedData);
             } catch (error) {
                 console.error('Error fetching provinces:', error);
@@ -75,8 +69,8 @@ const LocationSelector = ({onChange}) => {
             setIsLoading(prev => ({...prev, districts: true}));
             setError(prev => ({...prev, districts: null}));
             try {
-                const response = await axios.get(`/api/v1/address/districts?province=${selectedProvince}`);
-                const transformedData = transformData(response.data);
+                const response = await addressService.getDistricts(selectedProvince.id);
+                const transformedData = transformData(response.data.data, 'DISTRICT_ID', 'DISTRICT_NAME');
                 setDistricts(transformedData);
                 setSelectedDistrict('');
                 setSelectedWard('');
@@ -106,8 +100,8 @@ const LocationSelector = ({onChange}) => {
             setIsLoading(prev => ({...prev, wards: true}));
             setError(prev => ({...prev, wards: null}));
             try {
-                const response = await axios.get(`/api/v1/address/wards?district=${selectedDistrict}`);
-                const transformedData = transformData(response.data);
+                const response = await addressService.getWards(selectedDistrict.id);
+                const transformedData = transformData(response.data.data, 'WARDS_ID', 'WARDS_NAME');
                 setWards(transformedData);
                 setSelectedWard('');
             } catch (error) {
@@ -149,13 +143,22 @@ const LocationSelector = ({onChange}) => {
                            isLoading,
                            disabled,
                            error
-                       }) => (
-        <div className="relative">
-            <select
-                value={value}
-                onChange={onChange}
-                disabled={disabled || isLoading}
-                className={`
+                       }) => {
+    
+        return (
+            <div className="relative">
+                <select
+                    key={value?.id}
+                    value={value?.id || ''}
+                    onChange={(e) => {
+                        const selectedOption = options.find(opt => String(opt.id) === String(e.target.value));
+                        if (selectedOption) {
+                            onChange(selectedOption);
+                        }
+                    }}
+                    disabled={disabled || isLoading}
+                    required
+                    className={`
           w-full px-2.5 py-2.5 rounded-lg border
           ${disabled ? 'bg-gray-50 text-gray-500' : 'bg-white text-gray-900'}
           ${isLoading ? 'animate-pulse' : ''}
@@ -163,32 +166,33 @@ const LocationSelector = ({onChange}) => {
           focus:ring-1 ${error ? 'focus:ring-red-500' : 'focus:ring-blue-500'}
           disabled:cursor-not-allowed
         `}
-            >
-                <option value="">
-                    {isLoading ? 'Loading...' : error ? 'Error loading data' : placeholder}
-                </option>
-                {Array.isArray(options) && options.map(option => (
-                    <option key={option.code} value={option.code}>
-                        {option.name}
+                >
+                    <option value="">
+                        {isLoading ? 'Loading...' : error ? 'Error loading data' : placeholder}
                     </option>
-                ))}
-            </select>
-            {isLoading && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
-                         viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </div>
-            )}
-            {error && (
-                <p className="mt-1 text-sm text-red-600">{error}</p>
-            )}
-        </div>
-    );
+                    {options && options.map(option => (
+                        <option key={option.id} value={option.id}>
+                            {option.name}
+                        </option>
+                    ))}
+                </select>
+                {isLoading && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                )}
+                {error && (
+                    <p className="mt-1 text-sm text-red-600">{error}</p>
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className=" grid grid-cols-3 gap-4">
@@ -198,7 +202,9 @@ const LocationSelector = ({onChange}) => {
                 </label>
                 <SelectBox
                     value={selectedProvince}
-                    onChange={(e) => setSelectedProvince(e.target.value)}
+                    onChange={(option) => {
+                        setSelectedProvince(option);
+                    }}
                     options={provinces}
                     placeholder="Select province/city"
                     isLoading={isLoading.provinces}
@@ -212,12 +218,14 @@ const LocationSelector = ({onChange}) => {
                 </label>
                 <SelectBox
                     value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
+                    onChange={(option) => {
+                        setSelectedDistrict(option);
+                    }}
                     options={districts}
                     placeholder="Select district"
                     isLoading={isLoading.districts}
                     disabled={!selectedProvince}
-                    error={error.districts}
+                
                 />
             </div>
 
@@ -227,12 +235,14 @@ const LocationSelector = ({onChange}) => {
                 </label>
                 <SelectBox
                     value={selectedWard}
-                    onChange={(e) => setSelectedWard(e.target.value)}
+                    onChange={(option) => {
+                        setSelectedWard(option);
+                    }}
                     options={wards}
                     placeholder="Select ward"
                     isLoading={isLoading.wards}
                     disabled={!selectedDistrict}
-                    error={error.wards}
+                        
                 />
             </div>
         </div>

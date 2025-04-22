@@ -14,14 +14,14 @@ const HeroSection = ({slides}) => {
     }, [slides.length]);
 
     return (
-        <section className="relative w-full h-[600px]">
+        <section className="relative w-full h-[560px] overflow-hidden">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={currentSlide}
-                    initial={{opacity: 0}}
-                    animate={{opacity: 1}}
-                    exit={{opacity: 0}}
-                    transition={{duration: 1}}
+                    initial={{x: "100%"}}
+                    animate={{x: 0}}
+                    exit={{x: "-100%"}}
+                    transition={{duration: 0.5, ease: "easeInOut"}}
                     className="absolute inset-0"
                 >
                     <div
@@ -34,9 +34,9 @@ const HeroSection = ({slides}) => {
                     </div>
                     <div className="relative w-full h-full flex items-center justify-center">
                         <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.5}}
+                            initial={{opacity: 0, x: 20}}
+                            animate={{opacity: 1, x: 0}}
+                            transition={{duration: 0.5, delay: 0.2}}
                             className="text-white flex flex-col gap-2"
                         >
                             <h1 className="text-4xl md:text-6xl font-bold mb-4">
@@ -56,7 +56,7 @@ const HeroSection = ({slides}) => {
                 </motion.div>
             </AnimatePresence>
 
-            {/* Slide Indicators */}
+            {/* Slide Indicators
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2">
                 {slides.map((_, index) => (
                     <button
@@ -68,9 +68,9 @@ const HeroSection = ({slides}) => {
                         aria-label={`Go to slide ${index + 1}`}
                     />
                 ))}
-            </div>
+            </div> */}
         </section>
     );
 };
 
-export default HeroSection; 
+export default HeroSection;

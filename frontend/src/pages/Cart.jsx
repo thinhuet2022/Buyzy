@@ -174,11 +174,16 @@ const Cart = () => {
             .map(item => ({
                 productId: item.productId,
                 quantity: item.quantity,
-                cartItemId: item.id
+                cartItemId: item.id,
+                productName: item.productName,
+                productImage: item.productImage,
+                productPrice: item.price,
+                sku: item.sku,
+            
             }));
 
         // Navigate to checkout with the selected items
-        navigate('/checkout', { state: { selectedItems: selectedCartItems } });
+        navigate('/checkout', { state: { selectedItems: selectedCartItems} });
     };
 
     if (isLoading) {
@@ -231,7 +236,7 @@ const Cart = () => {
                             <div className="flex justify-end mt-4">
                                 <button
                                     onClick={handleClearCartClick}
-                                    className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700"
+                                    className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:text-black"
                                 >
                                     Clear Cart
                                 </button>

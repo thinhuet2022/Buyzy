@@ -71,7 +71,7 @@ const Register = () => {
             const response = await authService.register(formData);
             dispatch(setUser(response));
             localStorage.setItem('user', JSON.stringify(response));
-
+            
             navigate('/address-update');
         } catch (error) {
             setErrors({

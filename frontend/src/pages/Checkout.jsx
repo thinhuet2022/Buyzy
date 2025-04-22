@@ -9,16 +9,18 @@ import {useDispatch} from 'react-redux';
 import {useNavigate, useLocation} from 'react-router-dom';
 import { toast } from 'react-toastify';
 import cartService from '../services/cartService';
+import orderService from '../services/orderService';
 const Checkout = () => {
     const location = useLocation();
-    const { selectedItems } = location.state || { selectedItems: [] };
+    const { selectedItems} = location.state || { selectedItems: []};
+    const [checkoutItems, setCheckoutItems] = useState([]);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         shipping: {
             firstName: '',
             lastName: '',
             email: '',
-            phone: '',
+            phoneNumber: '',
             province: '',
             district: '',
             ward: '',
@@ -36,7 +38,8 @@ const Checkout = () => {
 
     const fetchCheckoutItems = async () => {
         const response = await cartService.getCheckoutItems(selectedItems);
-        console.log(response);
+        setCheckoutItems(response);
+        console.log(checkoutItems);
     }
 
     useEffect(() => {
@@ -57,63 +60,8 @@ const Checkout = () => {
             },
         }));
     };
-
-    const handleSubmit = async () => {
-        setIsLoading(true);
-        setError('');
-
-        try {
-            // Create order first
-            const orderData = {
-                ...formData,
-                items: cartItems,
-                total: calculateTotal(),
-                status: formData.payment.method === 'vnpay' ? 'PENDING_PAYMENT' : 'PENDING'
-            };
-
-            // Create order
-            const orderResponse = await axios.post('http://localhost:8080/api/v1/orders', orderData);
-
-            if (orderResponse.status === 201) {
-                if (formData.payment.method === 'vnpay') {
-                    // Call API to create VNPay payment URL
-                    const paymentResponse = await axios.post('http://localhost:8080/api/v1/payment/create_payment', {
-                        amount: calculateTotal() * 23000, // Convert to VND
-                        orderInfo: `Order-${orderResponse.data.id}`,
-                        orderId: orderResponse.data.id,
-                        returnUrl: `${window.location.origin}/payment/callback`
-                    });
-
-                    // Store order ID in sessionStorage for verification after payment
-                    sessionStorage.setItem('pendingOrderId', orderResponse.data.id);
-
-                    // Redirect to VNPay payment page
-                    window.location.href = paymentResponse.data.payUrl;
-                } else {
-                    // For COD, clear cart and navigate to success page
-                    dispatch(clearCart());
-                    navigate('/order-success', {
-                        state: {
-                            orderId: orderResponse.data.id,
-                            paymentMethod: 'cod'
-                        }
-                    });
-                }
-            }
-        } catch (error) {
-            setError(error.message || 'Failed to place order');
-            toast.error('Failed to place order');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Calculate totals based on selected items
     const calculateSubtotal = () => {
-        return selectedItems.reduce(
-            (total, item) => total + (item.price * item.quantity),
-            0
-        );
+        return selectedItems.reduce((total, item) => total + (item.productPrice * item.quantity), 0);
     };
 
     const calculateShipping = () => {
@@ -128,6 +76,60 @@ const Checkout = () => {
         return calculateSubtotal() + calculateShipping() + calculateTax();
     };
 
+    const handleSubmit = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            
+            const orderData = {
+                orderRequest: checkoutItems,
+                total: calculateTotal(),
+                paymentMethod: formData.payment.method === 'vnpay' ? 'VNPAY' : 'CASH_ON_DELIVERY',
+                address: {
+                    ...formData.shipping,
+                    province: formData.shipping.province.name,
+                    district: formData.shipping.district.name,
+                    ward: formData.shipping.ward.name
+                }
+            }
+            console.log(orderData);
+            // Store selected items in sessionStorage for later use
+            sessionStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+            
+            // Create order
+             const orderResponse = await orderService.createOrder(orderData);
+             console.log(orderResponse);
+
+            if (orderResponse) {
+                if (orderData.paymentMethod === 'VNPAY') { 
+                    // Call API to create VNPay payment URL
+                    const paymentResponse = await orderService.createPayment(orderData.total, orderResponse.id);
+                    // Store order ID in sessionStorage for verification after payment
+                    sessionStorage.setItem('pendingOrderId', orderResponse.id);
+                    sessionStorage.setItem('order', orderResponse);
+                    console.log(paymentResponse);
+                    // Redirect to VNPay payment page
+                    window.location.href = paymentResponse;
+                } else {
+                    // For COD, clear cart and navigate to success page
+                    cartService.clearCartItems(selectedItems);
+                    navigate('/order-confirmation', {
+                        state: {
+                            order: orderResponse
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            setError(error.message || 'Failed to place order');
+            toast.error('Failed to place order');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    
     const renderCurrentStep = () => {
         switch (step) {
             case 1:

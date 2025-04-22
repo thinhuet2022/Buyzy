@@ -15,21 +15,21 @@ const Home = () => {
     const heroSlides = [
         {
             id: 1,
-            image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1920&auto=format&fit=crop&q=60',
+            image: 'https://images.unsplash.com/photo-1584093092919-3d551a9c5055?w=1920&auto=format&fit=crop&q=60',
             title: 'Discover Amazing Products',
             subtitle: 'Shop the latest trends and find great deals on quality products',
         },
         {
             id: 2,
-            image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1920&auto=format&fit=crop&q=60',
-            title: 'Summer Collection 2025',
-            subtitle: 'Explore our new arrivals and stay ahead of the fashion curve',
+            image: 'https://images.unsplash.com/photo-1519060825752-c4832f2d400a?w=1920&auto=format&fit=crop&q=60',
+            title: 'The best products for your home',
+            subtitle: 'Explore our new arrivals and stay ahead of the latest trends',
         },
         {
             id: 3,
-            image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1920&auto=format&fit=crop&q=60',
-            title: 'Limited Time Offers',
-            subtitle: 'Don\'t miss out on our exclusive deals and discounts',
+            image: 'https://images.unsplash.com/photo-1674027392842-29f8354e236c?w=1920&auto=format&fit=crop&q=60',
+            title: 'Changing behavior of the world',
+            subtitle: 'We are changing the way the world works',
         },
     ];
 

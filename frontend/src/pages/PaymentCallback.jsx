@@ -2,43 +2,43 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams} from 'react-router-dom';
 import axios from 'axios';
 import {useDispatch} from 'react-redux';
-import {clearCart} from '../redux/cartSlice';
 import {FaCheckCircle, FaTimesCircle} from 'react-icons/fa';
+import cartService from '../services/cartService';
+
 
 const PaymentCallback = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [status, setStatus] = useState('processing');
+    const dispatch = useDispatch();
     const [error, setError] = useState(null);
+    const result = searchParams.get('status'); // status=00 hoặc mã lỗi
+    const selectedItems = JSON.parse(sessionStorage.getItem('selectedItems'));
 
     useEffect(() => {
         const verifyPayment = async () => {
             try {
                 // Get the pending order ID from sessionStorage
+                console.log(result);
                 const orderId = sessionStorage.getItem('pendingOrderId');
                 if (!orderId) {
                     throw new Error('No pending order found');
                 }
 
                 // Verify payment with backend
-                const response = await axios.post('http://localhost:8080/api/v1/payment/verify', {
-                    orderId,
-                    vnpayParams: Object.fromEntries(searchParams.entries())
-                });
-
-                if (response.data.success) {
+                
+                if (result === '00') {
                     // Payment successful
-                    setStatus('success');
-                    dispatch(clearCart());
+                    cartService.clearCartItems(selectedItems);
+                    sessionStorage.removeItem('selectedItems');
                     // Clear the pending order ID
                     sessionStorage.removeItem('pendingOrderId');
+                    setStatus('success');
                     // Redirect to success page after 2 seconds
                     setTimeout(() => {
-                        navigate('/order-success', {
+                        navigate('/order-confirmation', {
                             state: {
-                                orderId,
-                                paymentMethod: 'vnpay'
+                                order: sessionStorage.getItem('order')
                             }
                         });
                     }, 2000);
@@ -54,7 +54,7 @@ const PaymentCallback = () => {
         };
 
         verifyPayment();
-    }, [searchParams, navigate, dispatch]);
+    }, [searchParams, navigate]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

@@ -1,13 +1,11 @@
-import api from './api';
+import apiInstance from './api';
 import {requireAuth} from '../utils/authUtils';
 
 const orderService = {
     async createOrder(orderData) {
         try {
             requireAuth();
-            return await api.post('/orders', {
-                data: orderData
-            });
+            return await apiInstance.post('/orders/place-order', orderData);
         } catch (error) {
             throw error;
         }
@@ -16,7 +14,7 @@ const orderService = {
     async getOrders({page = 1, limit = 10, status, sortBy, sortOrder} = {}) {
         try {
             requireAuth();
-            return await api.get('/orders', {
+            return await apiInstance.get('/orders', {
                 queryParams: {
                     page,
                     limit,
@@ -33,7 +31,7 @@ const orderService = {
     async getOrderById(orderId) {
         try {
             requireAuth();
-            return await api.get('/orders/:orderId', {
+            return await apiInstance.get('/orders/:orderId', {
                 pathVariables: {orderId}
             });
         } catch (error) {
@@ -44,7 +42,7 @@ const orderService = {
     async updateOrderStatus(orderId, status) {
         try {
             requireAuth();
-            return await api.put('/orders/:orderId/status', {
+            return await apiInstance.put('/orders/:orderId/status', {
                 pathVariables: {orderId},
                 data: {status}
             });
@@ -56,23 +54,19 @@ const orderService = {
     async cancelOrder(orderId) {
         try {
             requireAuth();
-            return await api.put('/orders/:orderId/cancel', {
-                pathVariables: {orderId}
-            });
+            return await apiInstance.put(`/orders/cancel-order/${orderId}`);
         } catch (error) {
             throw error;
         }
     },
 
-    async getOrderHistory({page = 1, limit = 10, startDate, endDate} = {}) {
+    async getOrderHistory({page = 1, size = 10} = {}) {
         try {
             requireAuth();
-            return await api.get('/orders/history', {
-                queryParams: {
+            return await apiInstance.get('/orders/order-history', {
+                params: {
                     page,
-                    limit,
-                    startDate,
-                    endDate
+                    size
                 }
             });
         } catch (error) {
@@ -83,9 +77,18 @@ const orderService = {
     async trackOrder(orderId) {
         try {
             requireAuth();
-            return await api.get('/orders/:orderId/tracking', {
+            return await apiInstance.get('/orders/:orderId/tracking', {
                 pathVariables: {orderId}
             });
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async createPayment(amount, orderId) {
+        try {
+            requireAuth();
+            return await apiInstance.get(`/payment/vn-pay?amount=${amount}&orderId=${orderId}`);
         } catch (error) {
             throw error;
         }

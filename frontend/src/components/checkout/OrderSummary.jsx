@@ -1,7 +1,7 @@
 import React from 'react';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router-dom';
-
+import { formatCurrency } from '../../utils/formatters';
 const OrderSummary = ({subtotal, shipping, tax, total}) => {
     return (
         <motion.div
@@ -14,20 +14,20 @@ const OrderSummary = ({subtotal, shipping, tax, total}) => {
             <div className="space-y-3">
                 <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+                    <span className="text-gray-900">${formatCurrency(subtotal)}</span>
                 </div>
 
                 <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="text-gray-900">{typeof total === 'number' &&
-                        <span>{total.toFixed(2)}</span>}
+                        <span>{formatCurrency(total)}</span>}
           </span>
                 </div>
 
                 <div className="flex justify-between">
                     <span className="text-gray-600">Tax</span>
                     <span className="text-gray-900">
-            {typeof tax === 'number' && <span>{tax.toFixed(2)}</span>}
+            {typeof tax === 'number' && <span>{formatCurrency(tax)}</span>}
           </span>
                 </div>
 
@@ -35,7 +35,7 @@ const OrderSummary = ({subtotal, shipping, tax, total}) => {
                     <div className="flex justify-between">
                         <span className="text-lg font-semibold text-gray-900">Total</span>
                         <span className="text-lg font-semibold text-gray-900">
-              {typeof total === 'number' && <span>{total.toFixed(2)}</span>}
+              {typeof total === 'number' && <span>{formatCurrency(total)}</span>}
             </span>
                     </div>
                 </div>
@@ -50,7 +50,7 @@ const OrderSummary = ({subtotal, shipping, tax, total}) => {
                 </Link>
 
                 <Link
-                    to="/profile/orders"
+                    to="/orders"
                     className="block text-center text-primary-600 hover:text-primary-700 font-medium"
                 >
                     View Order History
