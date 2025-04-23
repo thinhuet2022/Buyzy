@@ -12,19 +12,19 @@ const OrderHistory = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 setLoading(true);
-                const response = await orderService.getOrderHistory({page: currentPage, size: ITEMS_PER_PAGE});
+                const response = await orderService.getOrderHistory({page: currentPage - 1, size: ITEMS_PER_PAGE});
                 console.log(response);
                 setOrders(response.content);
                 setTotalPages(response.totalPages);
                 setTotalElements(response.totalElements);
-                setCurrentPage(response.currentPage);
+                setCurrentPage(response.currentPage + 1);
                 setError(null);
             } catch (err) {
                 setError('Failed to fetch orders. Please try again later.');
@@ -125,7 +125,7 @@ const OrderHistory = () => {
                 {totalPages > 1 && (
                     <div className="mt-6">
                         <Pagination
-                            currentPage={currentPage + 1}
+                            currentPage={currentPage}
                             totalPages={totalPages}
                             onPageChange={handlePageChange}
                         />

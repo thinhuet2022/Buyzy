@@ -10,9 +10,10 @@ import {useNavigate, useLocation} from 'react-router-dom';
 import { toast } from 'react-toastify';
 import cartService from '../services/cartService';
 import orderService from '../services/orderService';
+
 const Checkout = () => {
     const location = useLocation();
-    const { selectedItems} = location.state || { selectedItems: []};
+    const { selectedItems, isDirectCheckout } = location.state || { selectedItems: [], isDirectCheckout: false };
     const [checkoutItems, setCheckoutItems] = useState([]);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -37,9 +38,14 @@ const Checkout = () => {
     const [error, setError] = useState('');
 
     const fetchCheckoutItems = async () => {
-        const response = await cartService.getCheckoutItems(selectedItems);
-        setCheckoutItems(response);
-        console.log(checkoutItems);
+        if (isDirectCheckout) {
+            // For direct checkout, use the selected items directly
+            setCheckoutItems(selectedItems);
+        } else {
+            // For cart checkout, fetch the items from the cart
+            const response = await cartService.getCheckoutItems(selectedItems);
+            setCheckoutItems(response);
+        }
     }
 
     useEffect(() => {
@@ -49,7 +55,7 @@ const Checkout = () => {
             navigate('/cart');
         }
         fetchCheckoutItems();
-    }, [selectedItems, navigate]);
+    }, [selectedItems, navigate, isDirectCheckout]);
 
     const handleInputChange = (section, field, value) => {
         setFormData((prev) => ({
@@ -81,7 +87,6 @@ const Checkout = () => {
         setError('');
 
         try {
-            
             const orderData = {
                 orderRequest: checkoutItems,
                 total: calculateTotal(),
@@ -93,33 +98,40 @@ const Checkout = () => {
                     ward: formData.shipping.ward.name
                 }
             }
-            console.log(orderData);
-            // Store selected items in sessionStorage for later use
-            sessionStorage.setItem('selectedItems', JSON.stringify(selectedItems));
-            
-            // Create order
-             const orderResponse = await orderService.createOrder(orderData);
-             console.log(orderResponse);
 
-            if (orderResponse) {
-                if (orderData.paymentMethod === 'VNPAY') { 
-                    // Call API to create VNPay payment URL
-                    const paymentResponse = await orderService.createPayment(orderData.total, orderResponse.id);
-                    // Store order ID in sessionStorage for verification after payment
-                    sessionStorage.setItem('pendingOrderId', orderResponse.id);
-                    sessionStorage.setItem('order', orderResponse);
-                    console.log(paymentResponse);
-                    // Redirect to VNPay payment page
-                    window.location.href = paymentResponse;
-                } else {
+            // Create order
+            const orderResponse = await orderService.createOrder(orderData);
+            
+            // Store order data for payment callback
+            localStorage.setItem('currentOrder', JSON.stringify(orderResponse));
+            localStorage.setItem('pendingOrderId', orderResponse.id);
+            localStorage.setItem('itemsToRemove', JSON.stringify(selectedItems));            
+            
+
+            if (orderData.paymentMethod === 'VNPAY') { 
+                // Call API to create VNPay payment URL
+                const paymentResponse = await orderService.createPayment(orderData.total, orderResponse.id);
+                // Redirect to VNPay payment page
+                // Show loading spinner while redirecting
+                toast.info('Redirecting to payment page...', {
+                    position: "top-center",
+                    autoClose: false,
+                    closeOnClick: false,
+                    pauseOnHover: false,
+                    draggable: false,
+                    progress: undefined,
+                });
+                window.location.href = paymentResponse;
+            } else {
+                if(isDirectCheckout=='false') {
                     // For COD, clear cart and navigate to success page
-                    cartService.clearCartItems(selectedItems);
-                    navigate('/order-confirmation', {
-                        state: {
-                            order: orderResponse
-                        }
-                    });
+                    await cartService.clearCartItems(selectedItems);
+                    localStorage.removeItem('itemsToRemove');
+                    localStorage.removeItem('currentOrder');
                 }
+                navigate('/order-confirmation', {
+                    state: { order: orderResponse }
+                });
             }
         } catch (error) {
             setError(error.message || 'Failed to place order');
