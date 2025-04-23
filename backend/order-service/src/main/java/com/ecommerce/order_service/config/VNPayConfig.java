@@ -41,6 +41,7 @@ public class VNPayConfig {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         formatter.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        System.out.println(new Date());
         String vnp_CreateDate = formatter.format(new Date());
         String vnp_ExpireDate = formatter.format(new Date(System.currentTimeMillis() + 15 * 60 * 1000)); // 15 phút sau
         vnpParamsMap.put("vnp_CreateDate", vnp_CreateDate);

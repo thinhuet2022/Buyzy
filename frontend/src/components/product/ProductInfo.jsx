@@ -2,6 +2,10 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {motion} from 'framer-motion';
 import Button from '../common/Button';
 import classNames from 'classnames';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import authService from '../../services/authService';
 
 const VariantOption = ({option, isSelected, onClick, isColor}) => (
     <button
@@ -43,6 +47,10 @@ const VariantSection = React.memo(({
 ));
 
 const ProductInfo = ({product, onAddToCart}) => {
+    const navigate = useNavigate();
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+    const hasToken = !!authService.getCurrentUser();
+    
     // State management
     const [quantity, setQuantity] = useState(1);
     const [selectedVariants, setSelectedVariants] = useState({});
@@ -105,12 +113,45 @@ const ProductInfo = ({product, onAddToCart}) => {
     }, [product.variant, selectedVariants, quantity, onAddToCart]);
 
     const handleBuyNow = useCallback(() => {
-        console.log('Buy now:', {
-            ...product,
-            quantity,
-            selectedVariants
+        if (!isAuthenticated && !hasToken) {
+            toast.error('Please login to proceed with checkout');
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
+            return;
+        }
+
+        // Find the matching variant based on selected options
+        const selectedVariant = product.variant.find(variant => {
+            return variant.variantOptions.every(option => 
+                selectedVariants[option.optionName] === option.optionValue
+            );
         });
-    }, [product, quantity, selectedVariants]);
+
+        if (!selectedVariant) {
+            toast.error('Please select all variant options');
+            return;
+        }
+
+        // Create a checkout item object
+        const checkoutItem = {
+            productId: product.productId,
+            quantity: quantity,
+            cartItemId: selectedVariant.id,
+            productName: product.name,
+            productImage: product.imageUrls[0]?.imageUrl || 'https://via.placeholder.com/500',
+            productPrice: product.price,
+            sku: selectedVariant.variantOptions.map(option => option.optionValue).join('-')
+        };
+
+        // Navigate directly to checkout with the item
+        navigate('/checkout', { 
+            state: { 
+                selectedItems: [checkoutItem],
+                isDirectCheckout: true 
+            } 
+        });
+    }, [product, quantity, selectedVariants, navigate, isAuthenticated, hasToken]);
 
     // Price section component
     const PriceSection = useMemo(() => (

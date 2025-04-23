@@ -25,7 +25,7 @@ const CartItem = ({item, onUpdateQuantity, onRemove, isSelected, onSelect}) => {
                 />
             </div>
 
-            <Link to={`/product/${item.productId}`} className="flex-shrink-0">
+            <Link to={`/products/${item.productId}`} className="flex-shrink-0">
                 <img
                     src={item.productImage}
                     alt={item.productName}
@@ -34,7 +34,7 @@ const CartItem = ({item, onUpdateQuantity, onRemove, isSelected, onSelect}) => {
             </Link>
 
             <div className="flex-1 min-w-0 ">
-                <Link to={`/product/${item.productId}`} className="block">
+                <Link to={`/products/${item.productId}`} className="block">
                     <h3 className="text-lg font-medium text-gray-900 truncate text-left">
                         {item.productName}
                     </h3>

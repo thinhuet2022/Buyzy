@@ -1,45 +1,68 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams} from 'react-router-dom';
-import axios from 'axios';
-import {useDispatch} from 'react-redux';
 import {FaCheckCircle, FaTimesCircle} from 'react-icons/fa';
 import cartService from '../services/cartService';
-
 
 const PaymentCallback = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [status, setStatus] = useState('processing');
-    const dispatch = useDispatch();
     const [error, setError] = useState(null);
-    const result = searchParams.get('status'); // status=00 hoặc mã lỗi
-    const selectedItems = JSON.parse(sessionStorage.getItem('selectedItems'));
+    const result = searchParams.get('status');
 
     useEffect(() => {
         const verifyPayment = async () => {
             try {
-                // Get the pending order ID from sessionStorage
-                console.log(result);
-                const orderId = sessionStorage.getItem('pendingOrderId');
-                if (!orderId) {
-                    throw new Error('No pending order found');
+                // Get the order data and items to remove from localStorage
+                const orderData = localStorage.getItem('currentOrder');
+                const itemsToRemove = localStorage.getItem('itemsToRemove');
+                // Add detailed logging
+                console.log('Payment Callback Debug Info:');
+                console.log('Search Params:', Object.fromEntries(searchParams.entries()));
+                console.log('Order Data from localStorage:', orderData);
+                console.log('Items to Remove from localStorage:', itemsToRemove);
+                if ((!orderData || !itemsToRemove)) {
+                    console.error('Missing data in localStorage:');
+                    console.error('Order data:', orderData);
+                    console.error('Items to remove:', itemsToRemove);
+                    throw new Error('No order data or items to remove found. Please try again later.');
                 }
 
-                // Verify payment with backend
-                
+                let order;
+                let items;
+                try {
+                    order = JSON.parse(orderData);
+                    items = JSON.parse(itemsToRemove);
+                } catch (parseError) {
+                    console.error('Error parsing localStorage data:', parseError);
+                    throw new Error('Invalid order data format. Please contact support.');
+                }
+
                 if (result === '00') {
                     // Payment successful
-                    cartService.clearCartItems(selectedItems);
-                    sessionStorage.removeItem('selectedItems');
-                    // Clear the pending order ID
-                    sessionStorage.removeItem('pendingOrderId');
+                    try {
+                        // Try to clear cart with retry logic
+                        if(items.length > 0) {
+                            console.log('Clearing cart');
+                            const cartCleared = await cartService.clearCartItems(items);
+                            if (!cartCleared) {
+                                console.warn('Failed to clear cart after multiple attempts');
+                            }
+                        }
+                        // Clean up localStorage
+                        // localStorage.removeItem('itemsToRemove');
+                        // localStorage.removeItem('currentOrder');
+                    } catch (error) {
+                        console.error('Error clearing cart:', error);
+                        // Don't block the success flow if cart clearing fails
+                    }
+                    
                     setStatus('success');
-                    // Redirect to success page after 2 seconds
+                    
+                    // Navigate to order confirmation with the order data
                     setTimeout(() => {
                         navigate('/order-confirmation', {
-                            state: {
-                                order: sessionStorage.getItem('order')
-                            }
+                            state: { order }
                         });
                     }, 2000);
                 } else {
@@ -61,8 +84,7 @@ const PaymentCallback = () => {
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
                 {status === 'processing' && (
                     <div className="text-center">
-                        <div
-                            className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
                         <h2 className="mt-4 text-xl font-semibold text-gray-900">
                             Verifying Payment...
                         </h2>

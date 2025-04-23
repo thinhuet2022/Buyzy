@@ -53,6 +53,7 @@ services:
       - ~/.m2:/root/.m2 # Mount thư mục .m2 để cache các dependency
     working_dir: /app    # Đặt thư mục làm việc là nơi chứa code
     environment:
+      - TZ=Asia/Ho_Chi_Minh
       - JAVA_OPTS=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true # Enable hot reload
       - SPRING_PROFILES_ACTIVE=dev # Chọn profile dev
       - PORT=8081
@@ -83,6 +84,7 @@ services:
 
     working_dir: /app    # Đặt thư mục làm việc là nơi chứa code
     environment:
+      - TZ=Asia/Ho_Chi_Minh
       - JAVA_OPTS=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true # Enable hot reload
       - SPRING_PROFILES_ACTIVE=dev # Chọn profile dev
       - PORT=8082
@@ -110,6 +112,7 @@ services:
       - ~/.m2:/root/.m2     # dùng cache Maven
     working_dir: /app    # Đặt thư mục làm việc là nơi chứa code
     environment:
+      - TZ=Asia/Ho_Chi_Minh
       - JAVA_OPTS=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true # Enable hot reload
       - SPRING_PROFILES_ACTIVE=dev # Chọn profile dev
       - PORT=8083
@@ -143,15 +146,33 @@ services:
       - ~/.m2:/root/.m2     # dùng cache Maven
     working_dir: /app    # Đặt thư mục làm việc là nơi chứa code
     environment:
+      - TZ=Asia/Ho_Chi_Minh
       - JAVA_OPTS=-Dspring.devtools.restart.enabled=true -Dspring.devtools.livereload.enabled=true # Enable hot reload
       - SPRING_PROFILES_ACTIVE=dev # Chọn profile dev
       - PORT=8080
+      - FRONT_END_HOST=localhost
       - USER_SERVICE_HOST=user-service
       - USER_SERVICE_PORT=8081
       - PRODUCT_SERVICE_HOST=product-service
       - PRODUCT_SERVICE_PORT=8082
       - ORDER_SERVICE_HOST=order-service
       - ORDER_SERVICE_PORT=8083
+    networks:
+      - backend
+  frontend:
+    build:
+      context: ./frontend   # nơi chứa Dockerfile và mã nguồn React
+      dockerfile: Dockerfile.dev
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app # Mount mã nguồn vào container
+      - /app/node_modules # Để tránh mount lại thư mục node_modules
+    working_dir: /app    # Đặt thư mục làm việc là nơi chứa code
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - VITE_API_URL=http://localhost:8080/api/v1
     networks:
       - backend
 

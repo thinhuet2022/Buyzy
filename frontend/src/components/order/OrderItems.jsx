@@ -1,7 +1,7 @@
 import React from 'react';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router-dom';
-import formatCurrency  from '../../utils/formatters';
+import {formatCurrency} from '../../utils/formatters';
 
 const OrderItems = ({items}) => {
     return (
@@ -12,7 +12,7 @@ const OrderItems = ({items}) => {
         >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
             <div className="space-y-6">
-                {items.map((item) => (
+                {items?.map((item) => (
                     <div
                         key={item.id}
                         className="flex items-center space-x-4 border-b pb-6 last:border-b-0 last:pb-0"

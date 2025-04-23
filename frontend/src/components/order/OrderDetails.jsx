@@ -52,7 +52,7 @@ const OrderDetails = ({order}) => {
                     <h3 className="text-sm font-medium text-gray-500">Payment Method</h3>
                     <div className="mt-1 flex items-center">
                         <div className="flex-shrink-0">
-                            {order.payment.paymentMethod === 'CASH_ON_DELIVERY' ? (
+                            {order.payment?.paymentMethod === 'CASH_ON_DELIVERY' ? (
                                 <svg
                                     className="h-6 w-6 text-gray-400"
                                     fill="currentColor"
@@ -74,7 +74,7 @@ const OrderDetails = ({order}) => {
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-900">
-                                {order.payment.paymentMethod === 'CASH_ON_DELIVERY'
+                                {order.payment?.paymentMethod === 'CASH_ON_DELIVERY'
                                     ? 'Cash on delivery'
                                     : 'VNPAY'}
                             </p>

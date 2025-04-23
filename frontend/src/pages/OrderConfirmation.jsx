@@ -1,19 +1,71 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {motion} from 'framer-motion';
 import OrderDetails from '../components/order/OrderDetails';
 import OrderItems from '../components/order/OrderItems';
 import OrderSummary from '../components/checkout/OrderSummary';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 const OrderConfirmation = () => {
     const location = useLocation();
-    const order = location.state.order;
-    console.log(order);
-    
+    const navigate = useNavigate();
+    const [order, setOrder] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const subtotal = order.orderItems.reduce(
-        (total, item) => total + item.price * item.quantity,
+    useEffect(() => {
+        // Try to get order from location state first
+        const orderFromState = location.state?.order;
+        
+        // If not in location state, try to get from sessionStorage
+        if (!orderFromState) {
+            const orderFromStorage = sessionStorage.getItem('currentOrder');
+            if (orderFromStorage) {
+                try {
+                    setOrder(JSON.parse(orderFromStorage));
+                } catch (error) {
+                    console.error('Error parsing order from storage:', error);
+                }
+            }
+        } else {
+            setOrder(orderFromState);
+        }
+        
+        // Clean up sessionStorage after getting the order
+        sessionStorage.removeItem('currentOrder');
+        sessionStorage.removeItem('pendingOrderId');
+        
+        setLoading(false);
+    }, [location.state]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+            </div>
+        );
+    }
+
+    if (!order) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Order Not Found</h1>
+                    <p className="text-gray-600 mb-4">We couldn't find your order details.</p>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                    >
+                        Return to Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const subtotal = order?.orderItems?.reduce(
+        (total, item) => total + (item.price * item.quantity),
         0
-    );
+    ) ?? 0;
+    
     const shipping = 10.0;
     const tax = subtotal * 0.03;
     const total = subtotal + shipping + tax;
