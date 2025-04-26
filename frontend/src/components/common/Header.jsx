@@ -9,6 +9,7 @@ import UserProfileDropdown from './UserProfileDropdown';
 import cartService from '../../services/cartService';
 import userService from '../../services/userService';
 import { toast } from 'react-toastify';
+import logo from '../../assets/logo.png';
 
 const Header = () => {
     const {isAuthenticated, user} = useSelector((state) => state.auth);
@@ -86,7 +87,7 @@ const Header = () => {
         <header
             className="w-full bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg flex items-center justify-center">
             <img
-                src="/src/assets/logo.png"
+                src={logo}
                 alt="Buyzy Logo"
                 className="h-16 w-16 mix-blend-screen"
             />
