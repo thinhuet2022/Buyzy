@@ -1,1 +1,153 @@
-a
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  labels:
+    app: order-service
+spec:
+  replicas: 1
+  selector:
+        matchLabels:
+          app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: thinhnguet/order-service:final
+#          imagePullPolicy: Never
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: PORT
+              value: "8083"
+            - name: TZ
+              value: Asia/Ho_Chi_Minh
+            - name: DB_HOST
+              value: mysql-order
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: order_service_db
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DB_USER
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DB_PASSWORD
+
+            - name: PRODUCT_SERVICE_HOST
+              value: product-service
+            - name: PRODUCT_SERVICE_PORT
+              value: "8082"
+            - name: VNPAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: VNPAY_URL
+
+            - name: VNPAY_TMN_CODE
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: VNPAY_TMN_CODE
+
+            - name: VNPAY_HASH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: VNPAY_HASH_SECRET
+
+            - name: VNPAY_RETURN_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: VNPAY_RETURN_URL
+            - name: PAYMENT_RESULT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: PAYMENT_RESULT_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+    selector:
+        app: order-service
+    ports:
+        - port: 8083
+          targetPort: 8083
+    type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: order-service-pvc
+spec:
+    accessModes:
+        - ReadWriteOnce
+    resources:
+        requests:
+          storage: 1Gi
+    storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-order
+  labels:
+    app: mysql-order
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+          app: mysql-order
+    template:
+        metadata:
+          labels:
+            app: mysql-order
+        spec:
+          containers:
+            - name: mysql-order
+              image: mysql
+              imagePullPolicy: IfNotPresent
+              ports:
+                - containerPort: 3306
+              env:
+                - name: MYSQL_ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: secret
+                      key: MYSQL_ROOT_PASSWORD
+                - name: MYSQL_DATABASE
+                  value: order_service_db
+              volumeMounts:
+                - name: mysql-order-storage
+                  mountPath: /var/lib/mysql
+          volumes:
+            - name: mysql-order-storage
+              persistentVolumeClaim:
+                claimName: order-service-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-order
+spec:
+    selector:
+        app: mysql-order
+    ports:
+        - port: 3306
+          targetPort: 3306
+    type: ClusterIP

@@ -129,6 +129,9 @@ const Checkout = () => {
                     localStorage.removeItem('itemsToRemove');
                     localStorage.removeItem('currentOrder');
                 }
+                cartService.clearCartItems(selectedItems);
+                localStorage.removeItem('itemsToRemove');
+                localStorage.removeItem('currentOrder');
                 navigate('/order-confirmation', {
                     state: { order: orderResponse }
                 });

@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class OrderService {
     @Autowired
     private ProductServiceClient productServiceClient;
 
-
+    
     public Order createOrder(Long userId, PlaceOrderRequest placeOrderRequest) {
         Order order = new Order();
         order.setUserId(userId);
@@ -137,6 +138,7 @@ public class OrderService {
                 .build();
 
     }
+
 
     public Order updateOrderStatus(Long orderId, OrderStatus orderStatus, String token) {
         Order order = orderRepository.findById(orderId)

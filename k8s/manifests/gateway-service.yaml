@@ -1,1 +1,89 @@
-a
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+      app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+      metadata:
+        labels:
+          app: api-gateway
+      spec:
+        containers:
+          - name: api-gateway
+            image: thinhnguet/api-gateway_final:latest
+#            imagePullPolicy: Never
+            ports:
+            - containerPort: 8080
+            env:
+              - name: SPRING_PROFILES_ACTIVE
+                value: prod
+              - name: PORT
+                value: "8080"
+              - name: TZ
+                value: Asia/Ho_Chi_Minh
+              - name: FRONTEND_SERVICE_HOST
+                valueFrom:
+                  configMapKeyRef:
+                    name: config
+                    key: FRONTEND_SERVICE_HOST
+
+              - name: FRONTEND_SERVICE_PORT
+                valueFrom:
+                  configMapKeyRef:
+                    name: config
+                    key: FRONTEND_SERVICE_PORT
+
+              - name: USER_SERVICE_HOST
+                valueFrom:
+                    configMapKeyRef:
+                      name: config
+                      key: USER_SERVICE_HOST
+
+              - name: USER_SERVICE_PORT
+                valueFrom:
+                    configMapKeyRef:
+                      name: config
+                      key: USER_SERVICE_PORT
+
+              - name: PRODUCT_SERVICE_HOST
+                valueFrom:
+                    configMapKeyRef:
+                      name: config
+                      key: PRODUCT_SERVICE_HOST
+
+              - name: PRODUCT_SERVICE_PORT
+                valueFrom:
+                    configMapKeyRef:
+                      name: config
+                      key: PRODUCT_SERVICE_PORT
+
+              - name: ORDER_SERVICE_HOST
+                valueFrom:
+                    configMapKeyRef:
+                      name: config
+                      key: ORDER_SERVICE_HOST
+
+              - name: ORDER_SERVICE_PORT
+                valueFrom:
+                    configMapKeyRef:
+                      name: config
+                      key: ORDER_SERVICE_PORT
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+    selector:
+        app: api-gateway
+    ports:
+        - port: 8080
+          targetPort: 8080
+          nodePort: 30001
+    type: NodePort

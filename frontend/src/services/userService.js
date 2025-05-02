@@ -3,6 +3,8 @@ import {requireAuth} from '../utils/authUtils';
 import axios from 'axios';
 import apiInstance from './api';
 
+const API_URL = import.meta.env.VITE_API_URL;
+const baseURL =  API_URL || "/api/v1"
 const userService = {
     async getProfile() {
         try {
@@ -35,7 +37,7 @@ const userService = {
             requireAuth();
             const formData = new FormData();
             formData.append('image', file);
-            const response = await axios.post('http://localhost:8080/api/v1/users/update-user-image', formData, {
+            const response = await axios.post(`${baseURL}/users/update-user-image`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${localStorage.getItem('Authorization')}`
