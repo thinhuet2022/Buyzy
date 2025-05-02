@@ -21,7 +21,6 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-                // ✅ CORS
                 .csrf().disable(); // ✅ Tắt CSRF
         return http.build();
     }
