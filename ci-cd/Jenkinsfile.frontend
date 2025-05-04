@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+    environment {
+      IMAGE_NAME = "thinhnguet/frontend"
+      IMAGE_TAG = "latest"
+    }
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/thinhuet2022/Buyzy.git'
+            }
+        }
+        stage('Verify Docker and Kubectl') {
+            steps {
+                sh 'docker version'
+                sh 'kubectl config current-context'
+                sh 'kubectl get nodes'
+            }
+        }
+        stage('Check for changes') {
+              steps {
+                script {
+                  sh 'git fetch origin main'
+                  def changes = sh(script: "git diff --name-only origin/main HEAD", returnStdout: true).trim()
+                  if (!changes.contains('frontend/')) {
+                    echo "No changes in frontend. Skipping build."
+                    currentBuild.result = 'NOT_BUILT'
+                    error("Skipped.")
+                  }
+                }
+              }
+        }
+        stage('Build Docker Images for Frontend') {
+            steps {
+                script {
+
+                    // Build the Docker image
+                    sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ./frontend"
+                }
+            }
+        }
+        stage('Push Docker Images to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+                    """
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Deploy the Docker image to Kubernetes
+                    sh """
+                        kubectl set image deployment/frontend frontend=$IMAGE_NAME:$IMAGE_TAG --namespace=default
+                    """
+                }
+            }
+        }
+    }
+}
