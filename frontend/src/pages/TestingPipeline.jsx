@@ -156,26 +156,6 @@ const TestingPipeline = () => {
                             required
                             placeholder="Enter your email"
                         />
-                        <FormInput
-                            label="Password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            error={errors.password}
-                            required
-                            placeholder="Enter your password"
-                        />
-                        <FormInput
-                            label="Confirm password"
-                            name="confirmPassword"
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            error={errors.confirmPassword}
-                            required
-                            placeholder="Confirm your password"
-                        />
                     </div>
 
                     {errors.submit && (
