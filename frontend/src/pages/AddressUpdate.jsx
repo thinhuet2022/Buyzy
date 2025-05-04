@@ -4,7 +4,6 @@ import {useNavigate} from 'react-router-dom';
 import FormInput from '../components/auth/FormInput';
 import Button from '../components/common/Button';
 import userService from '../services/userService';
-import {MdEmail} from 'react-icons/md';
 
 const AddressUpdate = () => {
     const navigate = useNavigate();
