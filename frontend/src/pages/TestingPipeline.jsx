@@ -126,15 +126,7 @@ const TestingPipeline = () => {
                                 required
                                 placeholder="Enter your first name"
                             />
-                            <FormInput
-                                label="Last name"
-                                name="lastName"
-                                value={formData.lastName}
-                                onChange={handleChange}
-                                error={errors.lastName}
-                                required
-                                placeholder="Enter your last name"
-                            />
+
                         </div>
 
                     </div>
