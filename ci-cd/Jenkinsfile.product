@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    environment {
+      IMAGE_NAME = "thinhnguet/product-service"
+      IMAGE_TAG = "latest"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/thinhuet2022/Buyzy.git'
+            }
+        }
+        stage('Verify Docker and Kubectl') {
+            steps {
+                sh 'docker version'
+                sh 'kubectl config current-context'
+                sh 'kubectl get nodes'
+            }
+        }
+        stage('Build Docker Images for Product Service') {
+            steps {
+                script {
+
+                    // Build the Docker image
+                    sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ./backend/product-service"
+                }
+            }
+        }
+        stage('Push Docker Images to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+                    """
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Deploy the Docker image to Kubernetes
+                    sh """
+                        kubectl set image deployment/product-service product-service=$IMAGE_NAME:$IMAGE_TAG --namespace=default
+                    """
+                }
+            }
+        }
+    }
+}
