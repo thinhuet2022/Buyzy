@@ -8,7 +8,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/thinhuet2022/Buyzy.git'
+                git branch: 'main', url: 'https://github.com/thinhuet2022/Buyzy.git'
             }
         }
         stage('Verify Docker and Kubectl') {
