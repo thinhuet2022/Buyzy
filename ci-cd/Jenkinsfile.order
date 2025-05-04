@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/thinhuet2022/Buyzy.git'
+                git branch: 'main', url: 'https://github.com/thinhuet2022/Buyzy.git'
             }
         }
         stage('Verify Docker and Kubectl') {
@@ -16,6 +16,30 @@ pipeline {
                 sh 'kubectl config current-context'
                 sh 'kubectl get nodes'
             }
+        }
+        stage('Check for changes') {
+          steps {
+            script {
+              sh 'git fetch origin main'
+              def previousCommit = sh(script: "git rev-parse origin/main~1", returnStdout: true).trim()
+                   def currentCommit = sh(script: "git rev-parse origin/main", returnStdout: true).trim()
+
+                   echo "Comparing commits: $previousCommit → $currentCommit"
+
+                   // Diff giữa 2 commit
+                   def changes = sh(
+                     script: "git diff --name-only ${previousCommit} ${currentCommit}",
+                     returnStdout: true
+                   ).trim()
+
+                   echo "Changed files:\n$changes"
+              if (!changes.contains('backend/order-service/')) {
+                echo "No changes in frontend. Skipping build."
+                currentBuild.result = 'NOT_BUILT'
+                error("Skipped.")
+              }
+            }
+          }
         }
         stage('Build Docker Images for Order Service') {
             steps {
