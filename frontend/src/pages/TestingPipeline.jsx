@@ -136,26 +136,7 @@ const TestingPipeline = () => {
                                 placeholder="Enter your last name"
                             />
                         </div>
-                        <FormInput
-                            label="Phone number"
-                            name="phoneNumber"
-                            type="phoneNumber"
-                            value={formData.phoneNumber}
-                            onChange={handleChange}
-                            error={errors.phoneNumber}
-                            required
-                            placeholder="Enter your phone number"
-                        />
-                        <FormInput
-                            label="Email address"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            error={errors.email}
-                            required
-                            placeholder="Enter your email"
-                        />
+
                     </div>
 
                     {errors.submit && (
