@@ -5,6 +5,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestPipeline {
     public TestPipeline() {
-        System.out.println("TestPipeline Build lai image");
+        System.out.println("TestPipeline Build lai image lan2");
     }
 }
