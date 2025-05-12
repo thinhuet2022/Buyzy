@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: thinhnguet/user-service:final
+          image: thinhnguet/user-service:latest
 #          imagePullPolicy: Never
           ports:
             - containerPort: 8081
@@ -81,12 +81,15 @@ kind: Service
 
 metadata:
   name: user-service
+  labels:
+    app: user-service
 spec:
     selector:
         app: user-service
     ports:
-        - port: 8081
-          targetPort: 8081
+      - name: http
+        port: 8081
+        targetPort: 8081
     type: ClusterIP
 
 ---

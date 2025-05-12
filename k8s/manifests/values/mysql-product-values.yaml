@@ -1,0 +1,12 @@
+mysql:
+  host: "mysql-product.default.svc.cluster.local"
+  port: 3306
+  user: "exporter"
+  pass: "password"
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  scrapeTimeout: 10s
+  additionalLabels:
+    release: prometheus

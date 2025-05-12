@@ -1,0 +1,105 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gateway-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus  # Phải khớp với label `release` của Prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: api-gateway
+
+  endpoints:
+    - port: http  # Tên port trong service
+      path: /actuator/prometheus
+      interval: 20s
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: user-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus  # Phải khớp với label `release` của Prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: user-service
+
+  endpoints:
+    - port: http  # Tên port trong service
+      path: /actuator/prometheus
+      interval: 20s
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: product-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus  # Phải khớp với label `release` của Prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: product-service
+
+  endpoints:
+    - port: http  # Tên port trong service
+      path: /actuator/prometheus
+      interval: 20s
+
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: order-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus  # Phải khớp với label `release` của Prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: order-service
+
+  endpoints:
+    - port: http  # Tên port trong service
+      path: /actuator/prometheus
+      interval: 20s
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mysql-exporter
+  labels:
+    release: prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-mysql-exporter
+  endpoints:
+    - port: metrics
+      interval: 30s

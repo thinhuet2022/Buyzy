@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: thinhnguet/frontend_final:latest
+        image: thinhnguet/frontend:latest
 #        imagePullPolicy: Never
         ports:
         - containerPort: 80
