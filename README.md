@@ -34,17 +34,12 @@ graph TD
     Gateway --> User[User Service]
     Gateway --> Product[Product Service]
     Gateway --> Order[Order Service]
-    Gateway --> Payment[Payment Service]
-    Gateway --> Cart[Cart Service]
+
     
-    User --> MySQL[(MySQL)]
-    Product --> MySQL
-    Order --> MySQL
-    Payment --> MySQL
-    Cart --> Redis[(Redis)]
-    
-    Order --> Payment
-    Cart --> Order
+    User --> MySQL1[(MySQL)]
+    Product --> MySQL2[(MySQL)]
+    Order --> MySQL3[(MySQL)]
+
 ```
 
 ## Technology Stack
